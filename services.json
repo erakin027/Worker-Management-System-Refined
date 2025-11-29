@@ -1,0 +1,40 @@
+[
+    {
+        "address": "addr1",
+        "bookingDate": "2025-11-30",
+        "bookingTime": "02:58:06",
+        "customerGender": "M",
+        "customerID": "erakin",
+        "genderPref": "F",
+        "id": 1,
+        "locality": "Moghalrajpuram",
+        "plan": "Intermediate",
+        "requestedServices": [
+            "Window Cleaning",
+            "Mopping",
+            "Fan Cleaning"
+        ],
+        "status": 0,
+        "type": "Immediate"
+    },
+    {
+        "address": "addr1",
+        "bookingDate": "2025-11-30",
+        "bookingTime": "02:58:58",
+        "customerGender": "M",
+        "customerID": "erakin",
+        "genderPref": "NP",
+        "id": 2,
+        "locality": "Moghalrajpuram",
+        "plan": "Premium",
+        "requestedServices": [
+            "Washing",
+            "Drying",
+            "Ironing"
+        ],
+        "status": 0,
+        "type": "Scheduling",
+        "workDate": "2025-12-06",
+        "workStartTime": "10:00:00"
+    }
+]

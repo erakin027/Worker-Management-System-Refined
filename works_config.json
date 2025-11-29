@@ -1,0 +1,34 @@
+{
+  "works": [
+    {"id": 1, "name": "Window Cleaning", "category": "house"},
+    {"id": 2, "name": "Mopping", "category": "house"},
+    {"id": 3, "name": "Sweeping", "category": "house"},
+    {"id": 4, "name": "Fan Cleaning", "category": "house"},
+    {"id": 5, "name": "Bathroom Cleaning", "category": "house"},
+    {"id": 6, "name": "Mowing", "category": "garden"},
+    {"id": 7, "name": "Pruning", "category": "garden"},
+    {"id": 8, "name": "Washing", "category": "laundry"},
+    {"id": 9, "name": "Drying", "category": "laundry"},
+    {"id": 10, "name": "Ironing", "category": "laundry"}
+  ],
+  "packages": [
+    {
+      "id": 1,
+      "name": "House Cleaning",
+      "description": "Complete house cleaning services",
+      "workIds": [1, 2, 3, 4, 5]
+    },
+    {
+      "id": 2,
+      "name": "Garden Cleaning",
+      "description": "Garden maintenance services",
+      "workIds": [6, 7]
+    },
+    {
+      "id": 3,
+      "name": "Laundry",
+      "description": "Complete laundry services",
+      "workIds": [8, 9, 10]
+    }
+  ]
+}

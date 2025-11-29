@@ -1,0 +1,14 @@
+[
+    {
+        "address": "addr1",
+        "bookingsIDs": [
+            1,
+            2
+        ],
+        "gender": "M",
+        "id": "erakin",
+        "locality": "Moghalrajpuram",
+        "name": "Abhijit",
+        "password": "pass1"
+    }
+]
