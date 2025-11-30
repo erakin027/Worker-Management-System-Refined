@@ -571,12 +571,22 @@ public:
     static int getIntInput() {
         int choice = 0;
         cin >> choice;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            return -1;
+        }
         return choice;
     }
     
     static double getDoubleInput() {
         double value = 0.0;
         cin >> value;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            return -1.0;
+        }
         return value;
     }
     
@@ -593,32 +603,46 @@ public:
     }
     
     static string selectGender() {
-        cout << "Select Gender:\n1) M\n2) F\nChoice: ";
-        int gopt = getIntInput();
-        return (gopt == 1 ? "M" : (gopt == 2 ? "F" : ""));
+        while (true) {
+            cout << "Select Gender:\n1) M\n2) F\nChoice: ";
+            int gopt = getIntInput();
+            if (gopt == 1) return "M";
+            if (gopt == 2) return "F";
+            cout << "Invalid choice! Please try again.\n\n";
+        }
     }
     
     static string selectLocality() {
-        cout << "Select locality:\n";
-        cout << "1) Moghalrajpuram\n2) Bhavanipuram\n3) Patamata\n";
-        cout << "4) Gayatri Nagar\n5) Benz Circle\n6) SN Puram\n";
-        cout << "Choice: ";
-        int loc = getIntInput();
-        switch (loc) {
-            case 1: return "Moghalrajpuram";
-            case 2: return "Bhavanipuram";
-            case 3: return "Patamata";
-            case 4: return "Gayatri Nagar";
-            case 5: return "Benz Circle";
-            case 6: return "SN Puram";
-            default: return "";
+        while (true) {
+            cout << "Select locality:\n";
+            cout << "1) Moghalrajpuram\n2) Bhavanipuram\n3) Patamata\n";
+            cout << "4) Gayatri Nagar\n5) Benz Circle\n6) SN Puram\n";
+            cout << "Choice: ";
+            int loc = getIntInput();
+            
+            switch (loc) {
+                case 1: return "Moghalrajpuram";
+                case 2: return "Bhavanipuram";
+                case 3: return "Patamata";
+                case 4: return "Gayatri Nagar";
+                case 5: return "Benz Circle";
+                case 6: return "SN Puram";
+                default: 
+                    cout << "Invalid choice! Please try again.\n\n";
+                    continue;
+            }
         }
     }
     
     static string selectGenderPreference() {
-        cout << "Gender preference?\n0) No Preference\n1) Male\n2) Female\nChoice: ";
-        int gp = getIntInput();
-        return (gp == 1 ? "M" : (gp == 2 ? "F" : "NP"));
+        while (true) {
+            cout << "Gender preference?\n0) No Preference\n1) Male\n2) Female\nChoice: ";
+            int gp = getIntInput();
+            if (gp == 0) return "NP";
+            if (gp == 1) return "M";
+            if (gp == 2) return "F";
+            cout << "Invalid choice! Please try again.\n\n";
+        }
     }
 };
 
@@ -903,64 +927,74 @@ public:
         : bookingService(bs), customerService(cs), paymentHandler(ph), workConfig(wc) {}
     
     void handleServiceRequest(Customer& customer) {
-        // Service type
-        cout << "\nService Type:\n1) Immediate\n2) Scheduling\nChoice: ";
-        int typeID = InputHandler::getIntInput();
-        if (typeID < 1 || typeID > 2) {
-            cout << "Invalid type!\n";
-            return;
+        // Service type with validation loop
+        int typeID;
+        while (true) {
+            cout << "\nService Type:\n1) Immediate\n2) Scheduling\nChoice: ";
+            typeID = InputHandler::getIntInput();
+            if (typeID >= 1 && typeID <= 2) break;
+            cout << "Invalid type! Please try again.\n";
         }
         
-        // Plan selection
-        cout << "\nSelect Plan:\n1) Basic (1 service)\n2) Intermediate (3 services)\n3) Premium (5 services or 1 package)\nChoice: ";
-        int planID = InputHandler::getIntInput();
-        if (planID < 1 || planID > 3) {
-            cout << "Invalid plan!\n";
-            return;
+        // Plan selection with validation loop
+        int planID;
+        while (true) {
+            cout << "\nSelect Plan:\n1) Basic (1 service)\n2) Intermediate (3 services)\n3) Premium (5 services or 1 package)\nChoice: ";
+            planID = InputHandler::getIntInput();
+            if (planID >= 1 && planID <= 3) break;
+            cout << "Invalid plan! Please try again.\n";
         }
         string planStr = (planID == 1 ? "Basic" : (planID == 2 ? "Intermediate" : "Premium"));
         
-        // Service selection
-        vector<string> requested = selectServices(planID);
-        if (requested.empty()) {
-            cout << "Service selection failed!\n";
-            return;
+        // Service selection with retry
+        vector<string> requested;
+        while (true) {
+            requested = selectServices(planID);
+            if (!requested.empty()) break;
+            cout << "Service selection failed! Please try again.\n";
         }
         
-        // Gender preference
+        // Gender preference (already has internal loop)
         string gpStr = InputHandler::selectGenderPreference();
         
         // Create service based on type
         Service s;
         if (typeID == 1) { // Immediate
             s = bookingService.createImmediate(planStr, customer.locality, customer.id, 
-                                              customer.gender, customer.address, requested, gpStr);
+                                            customer.gender, customer.address, requested, gpStr);
         } else { // Scheduling
             string date, time;
-            cout << "Enter scheduled date (YYYY-MM-DD): ";
-            date = InputHandler::getStringInput();
-            if (!Helper::isValidDate(date)) {
-                cout << "Invalid date format!\n";
-                return;
-            }
-            cout << "Enter scheduled time (HH:MM:SS): ";
-            time = InputHandler::getStringInput();
-            if (!Helper::isValidTime(time)) {
-                cout << "Invalid time format!\n";
-                return;
+            
+            // Date with validation loop
+            while (true) {
+                cout << "Enter scheduled date (YYYY-MM-DD): ";
+                date = InputHandler::getStringInput();
+                if (Helper::isValidDate(date)) {
+                    string curD = Helper::currentDate();
+                    if (date >= curD) break;
+                    cout << "Date must be today or in the future!\n";
+                } else {
+                    cout << "Invalid date format! Use YYYY-MM-DD\n";
+                }
             }
             
-            // Basic future check
-            string curD = Helper::currentDate();
-            string curT = Helper::currentTime();
-            if (date < curD || (date == curD && time <= curT)) {
-                cout << "Scheduled time must be in the future!\n";
-                return;
+            // Time with validation loop
+            while (true) {
+                cout << "Enter scheduled time (HH:MM:SS): ";
+                time = InputHandler::getStringInput();
+                if (Helper::isValidTime(time)) {
+                    string curD = Helper::currentDate();
+                    string curT = Helper::currentTime();
+                    if (date > curD || (date == curD && time > curT)) break;
+                    cout << "Time must be in the future!\n";
+                } else {
+                    cout << "Invalid time format! Use HH:MM:SS\n";
+                }
             }
             
             s = bookingService.createScheduling(planStr, customer.locality, customer.id, 
-                                               customer.gender, customer.address, requested, 
-                                               gpStr, date, time);
+                                            customer.gender, customer.address, requested, 
+                                            gpStr, date, time);
         }
         
         // Handle payment
@@ -988,19 +1022,17 @@ public:
         Customer c;
         cout << "\n=== SIGN UP ===\n";
 
-        string id;
+        // Get unique ID
         while (true) {
             cout << "Enter ID: ";
-            id = InputHandler::getStringInput();
+            c.id = InputHandler::getStringInput();
 
-            if (customerService.idExists(id)) { 
-                cout << "ID already exists! Try another.\n";
+            if (customerService.idExists(c.id)) { 
+                cout << "ID already exists! Try another.\n\n";
             } else {
                 break;
             }
         }
-
-        c.id = id;
         
         cout << "Password: ";
         c.password = InputHandler::getStringInput();
@@ -1009,26 +1041,28 @@ public:
         cout << "Enter Name: ";
         c.name = InputHandler::getLineInput();
         
+        // Gender with loop (already handles retry internally)
         c.gender = InputHandler::selectGender();
-        if (c.gender.empty()) {
-            cout << "Invalid gender selection!\n";
-            return;
-        }
         
+        // Locality with loop (already handles retry internally)
         c.locality = InputHandler::selectLocality();
-        if (c.locality.empty()) {
-            cout << "Invalid locality selection!\n";
-            return;
+        
+        cin.ignore();
+
+        while (true) {
+            cout << "Enter Address: ";
+            c.address = InputHandler::getLineInput();
+
+            if (c.address.empty()) { 
+                cout << "Address can't be empty! Try again.\n\n";
+            } else {
+                break;
+            }
         }
-        cin.ignore(); 
-        
-        cout << "Enter Address: ";
-        c.address = InputHandler::getLineInput();
-        
         if (customerService.registerCustomer(c)) {
             cout << "\nRegistration successful!\n";
         } else {
-            cout << "\nRegistration failed!\n";
+            cout << "\n✗ Registration failed!\n";
         }
     }
     
@@ -1129,51 +1163,80 @@ public:
                         cout << "ID: " << b.id << " | " << b.plan << " | " << b.bookingDate << "\n";
                     }
                     
-                    cout << "\nEnter Service ID to rebook: ";
-                    int rid = InputHandler::getIntInput();
+                    // Service ID selection with validation
+                    int rid;
+                    Service* selectedService = nullptr;
+                    while (true) {
+                        cout << "\nEnter Service ID to rebook (0 to cancel): ";
+                        rid = InputHandler::getIntInput();
+                        
+                        if (rid == 0) {
+                            cout << "Rebooking cancelled.\n";
+                            break;
+                        }
+                        
+                        auto it = find_if(completed.begin(), completed.end(), 
+                                        [&](const Service& s){ return s.id == rid; });
+                        if (it != completed.end()) {
+                            selectedService = &(*it);
+                            break;
+                        }
+                        cout << "Service ID not found! Please try again.\n";
+                    }
                     
-                    auto it = find_if(completed.begin(), completed.end(), 
-                                     [&](const Service& s){ return s.id == rid; });
-                    if (it == completed.end()) {
-                        cout << "Service ID not found!\n";
+                    if (!selectedService) break; // User cancelled
+                    
+                    // Rebook type selection with validation
+                    int rt;
+                    while (true) {
+                        cout << "\nRebook as:\n1) Immediate\n2) Scheduling\n0) Cancel\nChoice: ";
+                        rt = InputHandler::getIntInput();
+                        if (rt >= 0 && rt <= 2) break;
+                        cout << "Invalid choice! Please try again.\n";
+                    }
+                    
+                    if (rt == 0) {
+                        cout << "Rebooking cancelled.\n";
                         break;
                     }
                     
-                    cout << "\nRebook as:\n1) Immediate\n2) Scheduling\nChoice: ";
-                    int rt = InputHandler::getIntInput();
-                    
                     Service newService;
                     if (rt == 1) {
-                        newService = bookingService.createImmediate(it->plan, customer.locality, customer.id, 
-                                                                    customer.gender, customer.address, 
-                                                                    it->requestedServices, it->genderPref);
-                    } else if (rt == 2) {
+                        newService = bookingService.createImmediate(
+                            selectedService->plan, customer.locality, customer.id, 
+                            customer.gender, customer.address, 
+                            selectedService->requestedServices, selectedService->genderPref);
+                    } else { // rt == 2
                         string d, t;
                         string curD = Helper::currentDate();
                         string curT = Helper::currentTime();
-                        cout << "Date (YYYY-MM-DD): ";
-                        d = InputHandler::getStringInput();
-                        if (!Helper::isValidDate(d) || d < curD) {
-                            cout << "Invalid date!\n";
-                            break;
+                        
+                        // Date validation loop
+                        while (true) {
+                            cout << "Date (YYYY-MM-DD): ";
+                            d = InputHandler::getStringInput();
+                            if (Helper::isValidDate(d) && d >= curD) break;
+                            cout << "Invalid or past date! Please try again.\n";
                         }
-                        cout << "Time (HH:MM:SS): ";
-                        t = InputHandler::getStringInput();
-                        if (!Helper::isValidTime(t)|| (d == curD && t <= curT)) {
-                            cout << "Invalid time!\n";
-                            break;
+                        
+                        // Time validation loop
+                        while (true) {
+                            cout << "Time (HH:MM:SS): ";
+                            t = InputHandler::getStringInput();
+                            if (Helper::isValidTime(t) && (d > curD || (d == curD && t > curT))) break;
+                            cout << "Invalid or past time! Please try again.\n";
                         }
-                        newService = bookingService.createScheduling(it->plan, customer.locality, customer.id, 
-                                                                     customer.gender, customer.address, 
-                                                                     it->requestedServices, it->genderPref, d, t);
-                    } else {
-                        cout << "Invalid choice!\n";
-                        break;
+                        
+                        newService = bookingService.createScheduling(
+                            selectedService->plan, customer.locality, customer.id, 
+                            customer.gender, customer.address, 
+                            selectedService->requestedServices, selectedService->genderPref, d, t);
                     }
                     
                     PaymentHandler rebookPaymentHandler(paymentService, serviceRepo);
                     if (rebookPaymentHandler.handlePaymentFlow(newService)) {
                         customerService.addBookingToCustomer(customer, newService.id);
+                        cout << "\nService rebooked successfully!\n";
                     }
                     
                     // Refresh customer data
@@ -1181,7 +1244,7 @@ public:
                     if (oc) customer = *oc;
                     break;
                 }
-                
+                                
                 case 6: // Check Profile
                     cout << "\n=== PROFILE DETAILS ===\n";
                     cout << "ID: " << customer.id << "\n";
@@ -1192,9 +1255,16 @@ public:
                     break;
                     
                 case 7: { // Edit Profile
-                    cout << "\n=== EDIT PROFILE ===\n";
-                    cout << "1) Password\n2) Locality\n3) Address\nChoice: ";
-                    int e = InputHandler::getIntInput();
+                    int e;
+                    while (true) {
+                        cout << "\n=== EDIT PROFILE ===\n";
+                        cout << "1) Password\n2) Locality\n3) Address\n0) Back\nChoice: ";
+                        e = InputHandler::getIntInput();
+                        if (e >= 0 && e <= 3) break;
+                        cout << "Invalid choice! Please try again.\n";
+                    }
+                    
+                    if (e == 0) break; // User cancelled
                     
                     if (e == 1) {
                         string oldp, newp;
@@ -1211,26 +1281,26 @@ public:
                         cout << "Password updated!\n";
                     } else if (e == 2) {
                         string newLoc = InputHandler::selectLocality();
-                        if (!newLoc.empty()) {
-                            customer.locality = newLoc;
-                            customerService.updateCustomer(customer);  
-                            cout << "Locality updated!\n";
-                        } else {
-                            cout << "Invalid locality!\n";
-                        }
+                        customer.locality = newLoc;
+                        customerService.updateCustomer(customer);  
+                        cout << "Locality updated!\n";
                     } else if (e == 3) {
                         cin.ignore();
-                        cout << "New Address: ";
-                        string a = InputHandler::getLineInput();
-                        customer.address = a;
-                        customerService.updateCustomer(customer);  
-                        cout << "Address updated!\n";
-                    } else {
-                        cout << "Invalid choice!\n";
+                        while (true) {
+                            cout << "New Address: ";
+                            string a = InputHandler::getLineInput();
+                            if (!a.empty()) {
+                                customer.address = a;
+                                customerService.updateCustomer(customer);  
+                                cout << "Address updated!\n";
+                                break;
+                            }
+                            cout << "Address cannot be empty! Please try again.\n";
+                        }
                     }
                     break;
                 }
-                
+                                
                 case 8:
                     cout << "\nLogging out...\n";
                     break;
