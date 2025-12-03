@@ -1,11 +1,11 @@
 [
     {
-        "amountDue": 2880.0,
+        "amountDue": 200.0,
         "paid": true,
         "serviceID": 1
     },
     {
-        "amountDue": 3120.0,
+        "amountDue": 1600.0,
         "paid": true,
         "serviceID": 2
     }

@@ -1,15 +1,15 @@
 {
   "works": [
-    {"id": 1, "name": "Window Cleaning", "category": "house"},
-    {"id": 2, "name": "Mopping", "category": "house"},
-    {"id": 3, "name": "Sweeping", "category": "house"},
-    {"id": 4, "name": "Fan Cleaning", "category": "house"},
-    {"id": 5, "name": "Bathroom Cleaning", "category": "house"},
-    {"id": 6, "name": "Mowing", "category": "garden"},
-    {"id": 7, "name": "Pruning", "category": "garden"},
-    {"id": 8, "name": "Washing", "category": "laundry"},
-    {"id": 9, "name": "Drying", "category": "laundry"},
-    {"id": 10, "name": "Ironing", "category": "laundry"}
+    {"id": 1, "name": "Window Cleaning", "category": "house", "timeMinutes": 80, "price": 600},
+    {"id": 2, "name": "Mopping", "category": "house", "timeMinutes": 40, "price": 300},
+    {"id": 3, "name": "Sweeping", "category": "house", "timeMinutes": 30, "price": 200},
+    {"id": 4, "name": "Fan Cleaning", "category": "house", "timeMinutes": 40, "price": 400},
+    {"id": 5, "name": "Bathroom Cleaning", "category": "house", "timeMinutes": 60, "price": 500},
+    {"id": 6, "name": "Mowing", "category": "garden", "timeMinutes": 80, "price": 700},
+    {"id": 7, "name": "Pruning", "category": "garden", "timeMinutes": 120, "price": 900},
+    {"id": 8, "name": "Washing", "category": "laundry", "timeMinutes": 40, "price": 300},
+    {"id": 9, "name": "Drying", "category": "laundry", "timeMinutes": 30, "price": 200},
+    {"id": 10, "name": "Ironing", "category": "laundry", "timeMinutes": 40, "price": 200}
   ],
   "packages": [
     {

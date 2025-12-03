@@ -355,36 +355,196 @@ public:
     }
 };
 
+class Work {
+public:
+    int id;
+    string name;
+    string category;
+    int timeMinutes;  
+    double price; 
+};
+
+inline void from_json(const json& j, Work& w) {
+    j.at("id").get_to(w.id);
+    j.at("name").get_to(w.name);
+    j.at("category").get_to(w.category);
+    j.at("timeMinutes").get_to(w.timeMinutes);  
+    j.at("price").get_to(w.price);              
+}
+
+class Package {
+public:
+    int id;
+    string name;
+    string description;
+    vector<int> workIds;
+};
+
+inline void from_json(const json& j, Package& p) {
+    j.at("id").get_to(p.id);
+    j.at("name").get_to(p.name);
+    j.at("description").get_to(p.description);
+    j.at("workIds").get_to(p.workIds);
+}
+
+
+class WorkConfigurationRepository {
+private:
+    string configPath_;
+    vector<Work> works_;
+    vector<Package> packages_;
+    
+    void loadConfiguration() {
+        ifstream in(configPath_);
+        if (!in) {
+            cerr << "Warning: Configuration file not found. Using defaults.\n";
+            loadDefaults();
+            return;
+        }
+        
+        try {
+            json config;
+            in >> config;
+            
+            if (config.contains("works")) {
+                works_ = config["works"].get<vector<Work>>();
+            }
+            if (config.contains("packages")) {
+                packages_ = config["packages"].get<vector<Package>>();
+            }
+        } catch (const exception& e) {
+            cerr << "Error loading config: " << e.what() << "\n";
+            loadDefaults();
+        }
+    }
+    
+void loadDefaults() {
+    // Fallback to hardcoded defaults if config fails
+    works_ = {
+        {1, "Window Cleaning", "house", 80, 600},
+        {2, "Mopping", "house", 40, 300},
+        {3, "Sweeping", "house", 30, 200},
+        {4, "Fan Cleaning", "house", 40, 400},
+        {5, "Bathroom Cleaning", "house", 60, 500},
+        {6, "Mowing", "garden", 80, 700},
+        {7, "Pruning", "garden", 120, 900},
+        {8, "Washing", "laundry", 40, 300},
+        {9, "Drying", "laundry", 30, 200},
+        {10, "Ironing", "laundry", 40, 200}
+    };
+    
+    packages_ = {
+        {1, "House Cleaning", "Complete house cleaning", {1,2,3,4,5}},
+        {2, "Garden Cleaning", "Garden maintenance", {6,7}},
+        {3, "Laundry", "Complete laundry services", {8,9,10}}
+    };
+}
+    
+public:
+    WorkConfigurationRepository(const string& path = "works_config.json") 
+        : configPath_(path) {
+        loadConfiguration();
+    }
+    
+    const vector<Work>& getWorks() const { return works_; }
+    const vector<Package>& getPackages() const { return packages_; }
+    
+    optional<Work> getWorkById(int id) const {
+        auto it = find_if(works_.begin(), works_.end(), 
+                         [id](const Work& w) { return w.id == id; });
+        return it != works_.end() ? optional<Work>(*it) : nullopt;
+    }
+    
+    vector<string> getWorkNamesByIds(const vector<int>& ids) const {
+        vector<string> names;
+        for (int id : ids) {
+            auto work = getWorkById(id);
+            if (work) names.push_back(work->name);
+        }
+        return names;
+    }
+
+    vector<int> getIdsByNames(const vector<string>& names) const {
+        vector<int> ids;
+        for (auto &nm : names) {
+            for (auto &w : works_) {
+                if (w.name == nm) {
+                    ids.push_back(w.id);
+                    break;
+                }
+            }
+        }
+        return ids;
+    }
+
+    double getTotalPriceByIds(const vector<int>& ids) const {
+        double total = 0.0;
+        for (int id : ids) {
+            auto work = getWorkById(id);
+            if (work) total += work->price;
+        }
+        return total;
+    }
+
+    // int getTotalTimeByIds(const vector<int>& ids) const {
+    //     int total = 0;
+    //     for (int id : ids) {
+    //         auto work = getWorkById(id);
+    //         if (work) total += work->timeMinutes;
+    //     }
+    //     return total;
+    // }
+};
+
+
 // Payment Strategy (Open/Closed Principle) 
 
 class IPricingStrategy {
 public:
     virtual ~IPricingStrategy() = default;
-    virtual double calculatePrice(size_t serviceCount) const = 0;
+    virtual double calculatePrice(const vector<int>& workIds) const = 0;
 };
 
 class BasicPricing : public IPricingStrategy {
+private:
+    const WorkConfigurationRepository& workConfig;
+
 public:
-    double calculatePrice(size_t serviceCount) const override {
-        return 1000 + (500.0 * serviceCount);
+    BasicPricing(const WorkConfigurationRepository& wc) : workConfig(wc) {}
+
+    double calculatePrice(const vector<int>& workIds) const override {
+        return workConfig.getTotalPriceByIds(workIds); // NO DISCOUNT
     }
 };
 
 class IntermediatePricing : public IPricingStrategy {
+private:
+    const WorkConfigurationRepository& workConfig;
+
 public:
-    double calculatePrice(size_t serviceCount) const override {
-        return (2000 + (400.0 * serviceCount)) * 0.90;
+    IntermediatePricing(const WorkConfigurationRepository& wc) : workConfig(wc) {}
+
+    double calculatePrice(const vector<int>& workIds) const override {
+        double base = workConfig.getTotalPriceByIds(workIds);
+        return base * 0.90; // 10% OFF
     }
 };
 
 class PremiumPricing : public IPricingStrategy {
+private:
+    const WorkConfigurationRepository& workConfig;
+
 public:
-    double calculatePrice(size_t serviceCount) const override {
-        return (3000 + (300.0 * serviceCount)) * 0.80;
+    PremiumPricing(const WorkConfigurationRepository& wc) : workConfig(wc) {}
+
+    double calculatePrice(const vector<int>& workIds) const override {
+        double base = workConfig.getTotalPriceByIds(workIds);
+        return base * 0.80; // 20% OFF
     }
 };
 
-// Services / Use-cases 
+
+// Services / Use-cases     
 
 class BookingService {
 private:
@@ -482,31 +642,35 @@ class PaymentService {
 private:
     IPaymentRepository& payRepo;
     
-    double calculateBillByPlan(const string& plan, size_t count) {
-        if (plan == "Basic") {
-            BasicPricing pricing;
-            return pricing.calculatePrice(count);
-        } else if (plan == "Intermediate") {
-            IntermediatePricing pricing;
-            return pricing.calculatePrice(count);
-        } else if (plan == "Premium") {
-            PremiumPricing pricing;
-            return pricing.calculatePrice(count);
-        }
-        return 1500 + (300.0 * count); // Default fallback
-    }
-    
 public:
     PaymentService(IPaymentRepository& repo) : payRepo(repo) {}
-    
-    double calculateBill(const Service& s) {
-        return calculateBillByPlan(s.plan, s.requestedServices.size());
+    const WorkConfigurationRepository* workConfig;
+
+    void attachWorkConfig(const WorkConfigurationRepository& wc) {
+        workConfig = &wc;
     }
+
+    double calculateBill(const Service& s, const vector<int>& workIds, const WorkConfigurationRepository& workConfig) {
+        if (s.plan == "Basic") {
+            BasicPricing pricing(workConfig);
+            return pricing.calculatePrice(workIds);
+        }
+        if (s.plan == "Intermediate") {
+            IntermediatePricing pricing(workConfig);
+            return pricing.calculatePrice(workIds);
+        }
+        if (s.plan == "Premium") {
+            PremiumPricing pricing(workConfig);
+            return pricing.calculatePrice(workIds);
+        }
+        return workConfig.getTotalPriceByIds(workIds); // Fallback
+    }
+
     
-    Payment generatePayment(const Service& s) {
+Payment generatePayment(const Service& s, const vector<int>& workIds){
         Payment p; 
         p.serviceID = s.id; 
-        p.amountDue = calculateBill(s); 
+        p.amountDue = calculateBill(s, workIds, *workConfig);
         p.paid = false; 
         payRepo.save(p); 
         return p;
@@ -692,9 +856,9 @@ private:
 public:
     PaymentHandler(PaymentService& ps, IServiceRepository& sr) 
         : paymentService(ps), serviceRepo(sr) {}
-    
-    bool handlePaymentFlow(const Service& service) {
-        auto payment = paymentService.generatePayment(service);
+
+    bool handlePaymentFlow(const Service& service, const vector<int>& workIds){
+        auto payment = paymentService.generatePayment(service, workIds);
         cout << "\n=== PAYMENT REQUIRED ===\n";
         cout << "Total Bill: ₹" << payment.amountDue << "\n";
         
@@ -725,111 +889,6 @@ public:
     }
 };
 
-class Work {
-public:
-    int id;
-    string name;
-    string category;
-};
-
-inline void from_json(const json& j, Work& w) {
-    j.at("id").get_to(w.id);
-    j.at("name").get_to(w.name);
-    j.at("category").get_to(w.category);
-}
-
-class Package {
-public:
-    int id;
-    string name;
-    string description;
-    vector<int> workIds;
-};
-
-inline void from_json(const json& j, Package& p) {
-    j.at("id").get_to(p.id);
-    j.at("name").get_to(p.name);
-    j.at("description").get_to(p.description);
-    j.at("workIds").get_to(p.workIds);
-}
-
-
-class WorkConfigurationRepository {
-private:
-    string configPath_;
-    vector<Work> works_;
-    vector<Package> packages_;
-    
-    void loadConfiguration() {
-        ifstream in(configPath_);
-        if (!in) {
-            cerr << "Warning: Configuration file not found. Using defaults.\n";
-            loadDefaults();
-            return;
-        }
-        
-        try {
-            json config;
-            in >> config;
-            
-            if (config.contains("works")) {
-                works_ = config["works"].get<vector<Work>>();
-            }
-            if (config.contains("packages")) {
-                packages_ = config["packages"].get<vector<Package>>();
-            }
-        } catch (const exception& e) {
-            cerr << "Error loading config: " << e.what() << "\n";
-            loadDefaults();
-        }
-    }
-    
-    void loadDefaults() {
-        // Fallback to hardcoded defaults if config fails
-        works_ = {
-            {1, "Window Cleaning", "house"},
-            {2, "Mopping", "house"},
-            {3, "Sweeping", "house"},
-            {4, "Fan Cleaning", "house"},
-            {5, "Bathroom Cleaning", "house"},
-            {6, "Mowing", "garden"},
-            {7, "Pruning", "garden"},
-            {8, "Washing", "laundry"},
-            {9, "Drying", "laundry"},
-            {10, "Ironing", "laundry"}
-        };
-        
-        packages_ = {
-            {1, "House Cleaning", "Complete house cleaning", {1,2,3,4,5}},
-            {2, "Garden Cleaning", "Garden maintenance", {6,7}},
-            {3, "Laundry", "Complete laundry services", {8,9,10}}
-        };
-    }
-    
-public:
-    WorkConfigurationRepository(const string& path = "works_config.json") 
-        : configPath_(path) {
-        loadConfiguration();
-    }
-    
-    const vector<Work>& getWorks() const { return works_; }
-    const vector<Package>& getPackages() const { return packages_; }
-    
-    optional<Work> getWorkById(int id) const {
-        auto it = find_if(works_.begin(), works_.end(), 
-                         [id](const Work& w) { return w.id == id; });
-        return it != works_.end() ? optional<Work>(*it) : nullopt;
-    }
-    
-    vector<string> getWorkNamesByIds(const vector<int>& ids) const {
-        vector<string> names;
-        for (int id : ids) {
-            auto work = getWorkById(id);
-            if (work) names.push_back(work->name);
-        }
-        return names;
-    }
-};
 
 class ServiceRequestHandler {
 private:
@@ -838,8 +897,9 @@ private:
     PaymentHandler& paymentHandler;
     WorkConfigurationRepository& workConfig; 
     
-    vector<string> selectServices(int planID) {
+    pair<vector<string>, vector<int>> selectServices(int planID) {
         vector<string> requested;
+        vector<int> requestedIds;  // NEW: Track IDs
         const auto& works = workConfig.getWorks();
         const auto& packages = workConfig.getPackages();
         
@@ -858,14 +918,15 @@ private:
                 auto work = workConfig.getWorkById(p);
                 if (!work) {
                     cout << "Invalid selection!\n";
-                    return {};
+                    return {{}, {}};  // Return empty pair
                 }
                 if (find(picks.begin(), picks.end(), p) == picks.end()) {
                     picks.push_back(p);
                     requested.push_back(work->name);
+                    requestedIds.push_back(p);  // NEW
                 } else {
                     cout << "Duplicate selection!\n";
-                    return {};
+                    return {{}, {}};
                 }
             }
             
@@ -877,17 +938,18 @@ private:
                 cout << "\nSelect package:\n";
                 for (size_t i = 0; i < packages.size(); ++i) {
                     cout << packages[i].id << ") " << packages[i].name 
-                         << " - " << packages[i].description << "\n";
+                        << " - " << packages[i].description << "\n";
                 }
                 cout << "Choice: ";
                 int pc = InputHandler::getIntInput();
                 
                 if (pc < 1 || pc > (int)packages.size()) {
                     cout << "Invalid package!\n";
-                    return {};
+                    return {{}, {}};
                 }
                 
-                requested = workConfig.getWorkNamesByIds(packages[pc-1].workIds);
+                requestedIds = packages[pc-1].workIds;  // NEW
+                requested = workConfig.getWorkNamesByIds(requestedIds);
                 
             } else if (pkgOrSvc == 2) {
                 cout << "\nSelect 5 services:\n";
@@ -902,25 +964,26 @@ private:
                     auto work = workConfig.getWorkById(p);
                     if (!work) {
                         cout << "Invalid selection!\n";
-                        return {};
+                        return {{}, {}};
                     }
                     if (find(picks.begin(), picks.end(), p) == picks.end()) {
                         picks.push_back(p);
                         requested.push_back(work->name);
+                        requestedIds.push_back(p);  // NEW
                     } else {
                         cout << "Duplicate selection!\n";
-                        return {};
+                        return {{}, {}};
                     }
                 }
             } else {
                 cout << "Invalid choice!\n";
-                return {};
+                return {{}, {}};
             }
         }
         
-        return requested;
+        return {requested, requestedIds};  // Return both
     }
-    
+
 public:
     ServiceRequestHandler(BookingService& bs, CustomerService& cs, 
                          PaymentHandler& ph, WorkConfigurationRepository& wc)
@@ -948,15 +1011,23 @@ public:
         
         // Service selection with retry
         vector<string> requested;
+        vector<int> requestedIds;
         while (true) {
-            requested = selectServices(planID);
-            if (!requested.empty()) break;
+            auto [names, ids] = selectServices(planID); 
+            if (!names.empty()) {
+                requested = names;
+                requestedIds = ids;
+                break;
+            }
             cout << "Service selection failed! Please try again.\n";
         }
         
         // Gender preference (already has internal loop)
         string gpStr = InputHandler::selectGenderPreference();
+
         
+        double calculatedPrice = workConfig.getTotalPriceByIds(requestedIds);
+        cout << "\nTotal Service Price: ₹" << calculatedPrice << "\n";        
         // Create service based on type
         Service s;
         if (typeID == 1) { // Immediate
@@ -998,7 +1069,7 @@ public:
         }
         
         // Handle payment
-        if (paymentHandler.handlePaymentFlow(s)) {
+        if (paymentHandler.handlePaymentFlow(s, requestedIds)) {
             customerService.addBookingToCustomer(customer, s.id);
         }
     }
@@ -1234,7 +1305,8 @@ public:
                     }
                     
                     PaymentHandler rebookPaymentHandler(paymentService, serviceRepo);
-                    if (rebookPaymentHandler.handlePaymentFlow(newService)) {
+                    vector<int> workIds = workConfig.getIdsByNames(selectedService->requestedServices);
+                    if (rebookPaymentHandler.handlePaymentFlow(newService, workIds)){
                         customerService.addBookingToCustomer(customer, newService.id);
                         cout << "\nService rebooked successfully!\n";
                     }
@@ -1318,13 +1390,14 @@ int main() {
     JsonCustomerRepository custRepo("customers.json");
     JsonServiceRepository servRepo("services.json");
     JsonPaymentRepository paymentRepo("payments.json");
-    WorkConfigurationRepository workConfig("works_config.json"); // NEW
+    WorkConfigurationRepository workConfig("works_config.json"); 
     
     // Initialize services
     CustomerService customerService(custRepo, servRepo);
     BookingService bookingService(servRepo);
     PaymentService paymentService(paymentRepo);
-    
+    paymentService.attachWorkConfig(workConfig);
+
     // Initialize controller
     CustomerController controller(customerService, bookingService, 
                                  paymentService, servRepo, workConfig);
