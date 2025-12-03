@@ -139,7 +139,7 @@ public:
     string gender;
     string locality;
     string address;
-    vector<int> bookingsIDs;
+    // vector<int> bookingsIDs;
 };
 
 inline void to_json(json& j, const Customer& c) {
@@ -149,8 +149,8 @@ inline void to_json(json& j, const Customer& c) {
         {"name", c.name},
         {"gender", c.gender},
         {"locality", c.locality},
-        {"address", c.address},
-        {"bookingsIDs", c.bookingsIDs}
+        {"address", c.address}
+        // {"bookingsIDs", c.bookingsIDs}
     };
 }
 
@@ -161,7 +161,7 @@ inline void from_json(const json& j, Customer& c) {
     j.at("gender").get_to(c.gender);
     j.at("locality").get_to(c.locality);
     j.at("address").get_to(c.address);
-    if (j.contains("bookingsIDs")) j.at("bookingsIDs").get_to(c.bookingsIDs);
+    // if (j.contains("bookingsIDs")) j.at("bookingsIDs").get_to(c.bookingsIDs);
 }
 
 class Payment {
@@ -570,7 +570,6 @@ public:
         s.address = address;
         s.requestedServices = requestedServices;
         s.genderPref = genderPref;
-        serviceRepo.save(s);
         return s;
     }
     
@@ -594,7 +593,6 @@ public:
         s.genderPref = genderPref;
         s.workDate = scheduledDate;
         s.workStartTime = scheduledTime;
-        serviceRepo.save(s);
         return s;
     }
 };
@@ -632,10 +630,6 @@ public:
         return servRepo.findByCustomer(customerID); 
     }
     
-    bool addBookingToCustomer(Customer& c, int serviceId) { 
-        c.bookingsIDs.push_back(serviceId); 
-        return custRepo.save(c); 
-    }
 };
 
 class PaymentService {
@@ -845,7 +839,6 @@ private:
         
         if (paymentService.processPayment(serviceID, amt)) {
             cout << "\nPayment Successful!\n";
-            cout << "Service request submitted and payment completed.\n";
             return true;
         } else {
             cout << "\nPayment FAILED! Amount must be exactly ₹" << amountDue << "\n";
@@ -879,6 +872,10 @@ public:
                 cout << "\nProcessing via " << methodName << "...\n";
                 
                 if (attemptPayment(service.id, payment.amountDue)) {
+                    Service updated = service; 
+                    updated.price = payment.amountDue; 
+                    serviceRepo.save(updated);  
+                    cout << "Service request submitted and payment completed.\n";
                     return true;
                 }
                 // Loop back to payment methods if failed
@@ -1026,8 +1023,7 @@ public:
         string gpStr = InputHandler::selectGenderPreference();
 
         
-        double calculatedPrice = workConfig.getTotalPriceByIds(requestedIds);
-        cout << "\nTotal Service Price: ₹" << calculatedPrice << "\n";        
+    
         // Create service based on type
         Service s;
         if (typeID == 1) { // Immediate
@@ -1067,11 +1063,13 @@ public:
                                             customer.gender, customer.address, requested, 
                                             gpStr, date, time);
         }
+
         
+        double calculatedPrice = workConfig.getTotalPriceByIds(requestedIds);
+        cout << "\nTotal Service Price: ₹" << calculatedPrice << "\n";    
         // Handle payment
-        if (paymentHandler.handlePaymentFlow(s, requestedIds)) {
-            customerService.addBookingToCustomer(customer, s.id);
-        }
+        paymentHandler.handlePaymentFlow(s, requestedIds);
+
     }
 };
 
@@ -1306,10 +1304,8 @@ public:
                     
                     PaymentHandler rebookPaymentHandler(paymentService, serviceRepo);
                     vector<int> workIds = workConfig.getIdsByNames(selectedService->requestedServices);
-                    if (rebookPaymentHandler.handlePaymentFlow(newService, workIds)){
-                        customerService.addBookingToCustomer(customer, newService.id);
-                        cout << "\nService rebooked successfully!\n";
-                    }
+                    rebookPaymentHandler.handlePaymentFlow(newService, workIds);
+
                     
                     // Refresh customer data
                     oc = customerService.authenticate(customer.id, customer.password);

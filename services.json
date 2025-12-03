@@ -2,13 +2,14 @@
     {
         "address": "addr1",
         "bookingDate": "2025-12-03",
-        "bookingTime": "16:51:39",
+        "bookingTime": "18:07:08",
         "customerGender": "M",
         "customerID": "erakin",
         "genderPref": "NP",
         "id": 1,
         "locality": "Moghalrajpuram",
         "plan": "Basic",
+        "price": 200.0,
         "requestedServices": [
             "Sweeping"
         ],
@@ -16,15 +17,16 @@
         "type": "Immediate"
     },
     {
-        "address": "addr1",
+        "address": "addr2",
         "bookingDate": "2025-12-03",
-        "bookingTime": "16:52:34",
+        "bookingTime": "18:07:37",
         "customerGender": "M",
-        "customerID": "erakin",
-        "genderPref": "NP",
+        "customerID": "vish",
+        "genderPref": "M",
         "id": 2,
-        "locality": "Moghalrajpuram",
+        "locality": "Gayatri Nagar",
         "plan": "Premium",
+        "price": 1600.0,
         "requestedServices": [
             "Window Cleaning",
             "Mopping",
@@ -34,7 +36,7 @@
         ],
         "status": 0,
         "type": "Scheduling",
-        "workDate": "2025-12-20",
+        "workDate": "2025-12-12",
         "workStartTime": "10:00:00"
     }
 ]
