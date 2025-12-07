@@ -1,1 +1,10 @@
-[]
+[
+    {
+        "address": "a1",
+        "gender": "M",
+        "id": "c1",
+        "locality": "Moghalrajpuram",
+        "name": "c1",
+        "password": "p1"
+    }
+]

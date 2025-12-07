@@ -1,0 +1,21 @@
+[
+  {
+    "workerId": "w1",
+    "workerPass": "p1",
+    "name": "w1",
+    "gender": "M",
+    "area": "Moghalrajpuram",
+    "isAvailable": false,
+    "matchingCount": 0,
+    "capableWorks": [
+      "Window Cleaning",
+      "Mopping",
+      "Sweeping",
+      "Fan Cleaning",
+      "Bathroom Cleaning"
+    ],
+    "bookings": [
+      1
+    ]
+  }
+]
