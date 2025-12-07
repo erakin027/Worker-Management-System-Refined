@@ -687,7 +687,7 @@ class ServiceRequest {
         this.customerId = fields[7];
         this.customerGender = fields[8];
         this.address = fields[9];
-        this.requestedWorks = new ArrayList<>();
+        this.requestedWorks = new ArrayList<>();    
         
         String[] works = fields[10].substring(1, fields[10].length() - 1).split(",");
         for (String work : works) {

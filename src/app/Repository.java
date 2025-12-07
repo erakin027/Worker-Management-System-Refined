@@ -531,16 +531,7 @@ class ServiceRepository {
         }
         return null;
     }
-    
-    /**
-     * Add new service request to repository
-     * @param service ServiceRequest to add
-     */
-    public void add(ServiceRequest service) {
-        ArrayList<ServiceRequest> services = loadAll(new java.util.LinkedHashMap<>());
-        services.add(service);
-        saveAll(services);
-    }
+
     
     /**
      * Update existing service request in repository
@@ -557,21 +548,6 @@ class ServiceRepository {
         saveAll(services);
     }
     
-    /**
-     * Update service request status
-     * @param serviceId Service ID to update
-     * @param status New status
-     */
-    public void updateStatus(int serviceId, Status status) {
-        ArrayList<ServiceRequest> services = loadAll(new LinkedHashMap<>());
-        for (ServiceRequest service : services) {
-            if (service.getServiceId() == serviceId) {
-                service.setStatus(status);
-                break;
-            }
-        }
-        saveAll(services);
-    }
     
     /**
      * Find service requests by customer ID
