@@ -134,7 +134,16 @@ Each terminal runs its own independent module.
 The instructions below describe how to launch one instance of each module, but you can repeat the steps to run additional instances.
 
 ### C++ customer End
-This project uses **CMake**. All headers needed like nholmann/json.hpp and GoogleTest are bundled inside the project, so no installation is required.
+
+**Requirements**
+
+GCC / G++ 11 or higher (supports C++17)
+
+CMake 3.14+
+
+No external libraries required - all dependencies
+(including nlohmann/json and GoogleTest)
+are bundled inside the repository.
 
 From the project root:
 
@@ -169,15 +178,35 @@ From inside build/:
 
 ### Java worker/admin End
 
+**Requirements**
+
+Java 17 or newer
+
+Gson library (already included as lib/gson-2.13.2.jar)
+
+No installation beyond JDK needed
+
 **To run the application:**
 
-From the root directory:
+The project includes scripts for both Windows and Linux:
+
+**Windows:**
+
+From the project root:
 
 ```bash
-cd src/java
-javac Main.java
-java Main.java
+compile.bat all
 ```
+
+**Linux:**
+
+From the project root:
+
+```bash
+chmod +x compile.sh
+compile.sh all
+```
+
 
 **To run the tests:**
 
