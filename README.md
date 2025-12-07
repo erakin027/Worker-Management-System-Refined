@@ -234,7 +234,7 @@ From the project root:
 
 ```bash
 chmod +x compile.sh
-compile.sh all
+./compile.sh all
 ```
 
 
