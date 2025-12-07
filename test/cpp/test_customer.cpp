@@ -15,10 +15,10 @@ protected:
     
     void SetUp() override {
         // Create test files
-        custRepo = new JsonCustomerRepository("../test_customers.json");
-        servRepo = new JsonServiceRepository("../test_services.json");
-        payRepo = new JsonPaymentRepository("../test_payments.json");
-        workConfig = new WorkConfigurationRepository("../works_config.json");
+        custRepo = new JsonCustomerRepository("../data/test_customers.json");
+        servRepo = new JsonServiceRepository("../data/test_services.json");
+        payRepo = new JsonPaymentRepository("../data/test_payments.json");
+        workConfig = new WorkConfigurationRepository("../data/works_config.json");
     }
     
     void TearDown() override {
@@ -28,9 +28,9 @@ protected:
         delete workConfig;
         
         // Clean up test files
-        fs::remove("../test_customers.json");
-        fs::remove("../test_services.json");
-        fs::remove("../test_payments.json");
+        fs::remove("../data/test_customers.json");
+        fs::remove("../data/test_services.json");
+        fs::remove("../data/test_payments.json");
     }
 };
 
@@ -205,7 +205,7 @@ TEST_F(CustomerSystemTest, ServiceStatusTransitions) {
 // Repository Tests
 
 TEST(JsonRepoTest, CustomerSaveAndLoad) {
-    JsonCustomerRepository repo("../test_customers.json");
+    JsonCustomerRepository repo("../data/test_customers.json");
 
     Customer c;
     c.id = "C100";
@@ -221,11 +221,11 @@ TEST(JsonRepoTest, CustomerSaveAndLoad) {
     ASSERT_TRUE(out.has_value());
     EXPECT_EQ(out->name, "Keerthi");
 
-    fs::remove("../test_customers.json");
+    fs::remove("../data/test_customers.json");
 }
 
 TEST(JsonRepoTest, ServiceMultipleForSameCustomer) {
-    JsonServiceRepository repo("../test_services.json");
+    JsonServiceRepository repo("../data/test_services.json");
 
     Service s1; s1.id = 1; s1.customerID = "C101";
     Service s2; s2.id = 2; s2.customerID = "C101";
@@ -236,11 +236,11 @@ TEST(JsonRepoTest, ServiceMultipleForSameCustomer) {
     auto list = repo.findByCustomer("C101");
     ASSERT_EQ(list.size(), 2u);
 
-    fs::remove("../test_services.json");
+    fs::remove("../data/test_services.json");
 }
 
 TEST(JsonRepoTest, ExistsMethod) {
-    JsonCustomerRepository repo("../test_customer_exists.json");
+    JsonCustomerRepository repo("../data/test_customer_exists.json");
 
     Customer c;
     c.id = "X1"; c.password = "p"; c.name = "Test";
@@ -249,13 +249,13 @@ TEST(JsonRepoTest, ExistsMethod) {
     EXPECT_TRUE(repo.exists("X1"));
     EXPECT_FALSE(repo.exists("NOPE"));
 
-    fs::remove("../test_customer_exists.json");
+    fs::remove("../data/test_customer_exists.json");
 }
 
 //  Work Configuration Tests 
 
 TEST(WorkConfigTest, LoadDefaultWorks) {
-    WorkConfigurationRepository wc("../nonexistent.json");
+    WorkConfigurationRepository wc("../data/nonexistent.json");
     
     auto works = wc.getWorks();
     EXPECT_EQ(works.size(), 10);
@@ -265,7 +265,7 @@ TEST(WorkConfigTest, LoadDefaultWorks) {
 }
 
 TEST(WorkConfigTest, GetWorkById) {
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     
     auto work = wc.getWorkById(1);
     ASSERT_TRUE(work.has_value());
@@ -274,7 +274,7 @@ TEST(WorkConfigTest, GetWorkById) {
 }
 
 TEST(WorkConfigTest, GetTotalPriceByIds) {
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     
     vector<int> ids = {1, 2, 3};  // Window + Mopping + Sweeping
     double total = wc.getTotalPriceByIds(ids);
@@ -294,7 +294,7 @@ TEST(WorkConfigTest, GetWorkNamesByIds) {
 //  Pricing Tests 
 
 TEST(PricingTest, BasicPricing) {
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     BasicPricing pricing(wc);
     
     vector<int> ids = {1, 2};  // 600 + 300
@@ -303,7 +303,7 @@ TEST(PricingTest, BasicPricing) {
 }
 
 TEST(PricingTest, IntermediatePricing) {
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     IntermediatePricing pricing(wc);
     
     vector<int> ids = {1, 2, 3};  // 600 + 300 + 200 = 1100
@@ -312,7 +312,7 @@ TEST(PricingTest, IntermediatePricing) {
 }
 
 TEST(PricingTest, PremiumPricing) {
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     PremiumPricing pricing(wc);
     
     vector<int> ids = {1, 2, 3, 4, 5};  // 600+300+200+400+500 = 2000
@@ -400,15 +400,15 @@ TEST_F(CustomerSystemTest, CancelPaymentFlow) {
 
 // Service Request Handler Tests
 TEST(ControllerTests, ImmediateBasicSuccessfulPayment) {
-    JsonCustomerRepository cust("../tcus.json");
-    JsonServiceRepository serv("../tser.json");
-    JsonPaymentRepository pay("../tpay.json");
+    JsonCustomerRepository cust("../data/tcus.json");
+    JsonServiceRepository serv("../data/tser.json");
+    JsonPaymentRepository pay("../data/tpay.json");
 
     CustomerService cs(cust, serv);
     BookingService bs(serv);
     PaymentService ps(pay);
 
-    WorkConfigurationRepository wc("../works_config.json");
+    WorkConfigurationRepository wc("../data/works_config.json");
     ps.attachWorkConfig(wc);
 
     PaymentHandler ph(ps, serv);
@@ -447,9 +447,9 @@ TEST(ControllerTests, ImmediateBasicSuccessfulPayment) {
     ASSERT_TRUE(payment.has_value());
     EXPECT_TRUE(payment->paid);
 
-    fs::remove("../tcus.json");
-    fs::remove("../tser.json");
-    fs::remove("../tpay.json");
+    fs::remove("../data/tcus.json");
+    fs::remove("../data/tser.json");
+    fs::remove("../data/tpay.json");
 }
 
 
