@@ -18,11 +18,11 @@ The system is divided into three independent components that operate on shared J
 
 ---
 
-## 1. Customer Module (C++ Application)
+### 1. Customer Module (C++ Application)
 
 This is the customer-facing part of the system. It allows customers to register, log in, request services, view history, and handle payments.
 
-### **Features**
+#### **Features**
 - **Register & Login**  
   Customers create an account with name, password, gender, locality, and address. They can log in securely to access their dashboard.
 
@@ -49,11 +49,11 @@ This is the customer-facing part of the system. It allows customers to register,
 
 ---
 
-## 2. Admin Module (Java Application)
+### 2. Admin Module (Java Application)
 
 The admin oversees request approval, worker assignment, and database management.
 
-### **Features**
+#### **Features**
 - **Admin Login**  
   Secure access to admin functionalities.
 
@@ -79,11 +79,11 @@ The admin oversees request approval, worker assignment, and database management.
 
 ---
 
-## 3. Worker Module (Java Application)
+### 3. Worker Module (Java Application)
 
 Workers manage their daily schedules and job confirmations.
 
-### **Features**
+#### **Features**
 - **Worker Login**  
   Secure login for workers.
 
@@ -132,6 +132,12 @@ worker completes work and marks as complete - status = 2 (completed)
 ---
 
 ## Building & Run Instructions
+
+To run the Customer Application (C++) and the Worker/Admin Application (Java) at the same time, you will need to use two separate terminal windows.
+Each terminal runs its own independent module.
+
+**Note:**  You may open as many terminals as you like to simulate multiple customers and multiple workers concurrently. 
+The instructions below describe how to launch one instance of each module, but you can repeat the steps to run additional instances.
 
 ### C++ customer End
 This project uses **CMake**. All headers needed like nholmann/json.hpp and GoogleTest are bundled inside the project, so no installation is required.
@@ -188,6 +194,7 @@ From the root directory:
 ```
 
 ## Team Members
+
 - Aditya KNV             - IMT2023033
 - Abhijit Dibbidi        - IMT2023054
 - Vishnu Balla           - IMT2023097
