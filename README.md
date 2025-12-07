@@ -30,7 +30,7 @@ This is the customer-facing part of the system. It allows customers to register,
   Customers can choose immediate or scheduled services. They select required tasks, gender preference, and provide timing. Scheduling includes validation (future date/time only).
 
 - **View Current Bookings**  
-  Shows all active service requests—pending, worker-assigned, or awaiting approval.
+  Shows all active service request - pending/worker-assigned yet awaiting completion.
 
 - **View Service History**  
   Lists all completed services with full details.
@@ -116,9 +116,9 @@ These files act as a lightweight database and synchronize state between the C++ 
 ### **Work Configuration & Pricing**
 - Centralized config file defines all available tasks, time required, and pricing.
 - Supports three pricing plans:
-  - **Basic** — no discount  
-  - **Intermediate** — 10% discount  
-  - **Premium** — 20% discount  
+  - **Basic** - no discount  
+  - **Intermediate** - 10% discount  
+  - **Premium** - 20% discount  
 
 ### **Service Status Workflow**
 All service requests follow a consistent lifecycle:
