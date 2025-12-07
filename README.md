@@ -125,6 +125,36 @@ worker completes work and marks as complete - status = 2 (completed)
 
 ---
 
+## Testing
+
+### Customer C++ End
+
+A wide variety of tests were developed to validate the C++ Customer Module, using the GoogleTest framework.
+These tests cover a wide range of functionality, including:
+
+- helper utilities
+
+- customer registration & authentication
+
+- service creation (immediate and scheduling)
+
+- repository operations
+
+- pricing strategy calculations
+
+- payment processing
+
+- configuration loading
+
+- end-to-end service request flows with simulated user input
+
+This ensures that the customer-side logic is thoroughly verified, reliable, and resistant to edge-case failures.
+
+### Worker/Admin Java End
+to be added
+
+---
+
 ## Building & Run Instructions
 
 To run the Customer Application (C++) and the Worker/Admin Application (Java) at the same time, you will need to use two separate terminal windows.
