@@ -1,0 +1,49 @@
+# -------------------------
+# Build artifacts (CMake)
+# -------------------------
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled binaries
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+
+# IDE / editor files
+*.swp
+*.swo
+*.user
+*.workspace
+*.project
+*.idea/
+*.vscode/
+*.DS_Store
+
+# Logs
+*.log
+
+# Backup files
+*~
+*.bak
+
+# Java build artifacts
+*.class
+*.jar
+*.war
+*.ear
+target/
+bin/
+
+# Gradle/Maven cache (in case your partner uses it)
+.gradle/
+.mvn/
+
+# Local runtime data that should NOT be committed
+data/*.tmp
