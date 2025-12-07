@@ -1,0 +1,44 @@
+[
+    {
+        "address": "a1",
+        "assignedWorkerIds": [
+            "w1"
+        ],
+        "bookingDate": "2025-12-07",
+        "bookingTime": "22:38:20",
+        "customerGender": "M",
+        "customerID": "c1",
+        "genderPref": "M",
+        "id": 1,
+        "locality": "Moghalrajpuram",
+        "plan": "Basic",
+        "price": 300.0,
+        "requestedServices": [
+            "Mopping"
+        ],
+        "status": 1,
+        "type": "Immediate",
+        "workDate": "2025-12-07",
+        "workEndTime": "23:26:57",
+        "workStartTime": "22:46:57"
+    },
+    {
+        "address": "a1",
+        "bookingDate": "2025-12-07",
+        "bookingTime": "22:47:11",
+        "customerGender": "M",
+        "customerID": "c1",
+        "genderPref": "M",
+        "id": 2,
+        "locality": "Moghalrajpuram",
+        "plan": "Basic",
+        "price": 600.0,
+        "requestedServices": [
+            "Window Cleaning"
+        ],
+        "status": 0,
+        "type": 1,
+        "workDate": "2026-01-01",
+        "workStartTime": "12:00:00"
+    }
+]
