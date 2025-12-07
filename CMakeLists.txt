@@ -7,10 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 # Add nlohmann/json include path (header only)
-include_directories(external/nlohmann)
+include_directories(lib/nlohmann)
 
 # Add GoogleTest source folder
-add_subdirectory(external/googletest)
+add_subdirectory(lib/googletest)
 
 enable_testing()
 
