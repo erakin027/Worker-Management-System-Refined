@@ -1,4 +1,3 @@
-// Refactored to JSON & SOLID — do not change workflow without review
 // Repository layer for JSON persistence (Worker, Service, Admin repositories)
 // Implements atomic file writes (temp file + rename) for data integrity
 package app;
@@ -108,13 +107,7 @@ class WorkRepository{
         return workByName.get(name);
     }
 
-    /**
-     * Get work by ID
-     */
-    // public Work getWorkById(int id) {
-    //     return workById.get(id);
-    // }
-
+    
     /**
      * Get all works as an ordered list
      */
@@ -126,27 +119,6 @@ class WorkRepository{
         return workByName.containsKey(name);
     }
 
-    // /**
-    //  * Atomic write for saving modified work list (rarely needed)
-    //  */
-    // private void writeToFileAtomically(JsonObject root) {
-    //     String tempPath = filePath + ".tmp";
-    //     try {
-    //         try (FileWriter writer = new FileWriter(tempPath)) {
-    //             gson.toJson(root, writer);
-    //         }
-
-    //         File tmp = new File(tempPath);
-    //         File target = new File(filePath);
-
-    //         if (target.exists()) target.delete();
-    //         tmp.renameTo(target);
-
-    //     } catch (IOException e) {
-    //         System.err.println("Error writing works file: " + e.getMessage());
-    //         new File(tempPath).delete();
-    //     }
-    // }
 }  
 
 /**
@@ -640,7 +612,7 @@ class ServiceRepository {
         JsonObject json = new JsonObject();
         json.addProperty("id", service.getServiceId());
         json.addProperty("status", service.getStatus().getValue());
-        json.addProperty("type", service.getTypeName().getDisplayName());
+        json.addProperty("type", service.getTypeName() == ServiceType.IMMEDIATE ? 0 : 1);
         json.addProperty("plan", service.getPlanName().getDisplayName());
         json.addProperty("bookingDate", service.getBookingDate());
         json.addProperty("bookingTime", service.getBookingTime());

@@ -151,7 +151,29 @@ These tests cover a wide range of functionality, including:
 This ensures that the customer-side logic is thoroughly verified, reliable, and resistant to edge-case failures.
 
 ### Worker/Admin Java End
-to be added
+A comprehensive suite of automated tests was developed for the Java backend using the JUnit framework. These tests validate both core domain logic and end-to-end service workflows, including:
+
+- work entity creation and attribute validation
+
+- worker construction, availability, and booking storage
+
+- service request creation and status transitions
+
+- immediate service assignment and rejection cases
+
+- scheduled service manual assignment via simulated admin input
+
+- price calculation with plan-based discounts
+
+- worker skill editing (capable works update)
+
+- service completion flow and end-time updates
+
+- worker active bookings vs completed history filtering
+
+- full assignment → completion end-to-end flow validation
+
+These tests ensure that worker management, service assignment, pricing, and lifecycle state transitions are all functionally correct, consistent, and resistant to edge-case failures.
 
 ---
 
@@ -169,7 +191,9 @@ The instructions below describe how to launch one instance of each module, but y
 
 GCC / G++ 11 or higher (supports C++17)
 
-CMake 3.14+ - Download cmake from https://github.com/Kitware/CMake/releases/download/v4.2.0/cmake-4.2.0-windows-x86_64.msi
+CMake 3.14+ :
+In windows - Download cmake from https://github.com/Kitware/CMake/releases/download/v4.2.0/cmake-4.2.0-windows-x86_64.msi
+
 
 No external libraries required - all dependencies
 (including nlohmann/json and GoogleTest)
@@ -225,7 +249,7 @@ The project includes scripts for both Windows and Linux:
 From the project root:
 
 ```bash
-compile.bat all
+./compile.bat all
 ```
 
 **Linux:**
@@ -243,9 +267,8 @@ chmod +x compile.sh
 From the root directory:
 
 ```bash
-javac -cp "lib/gson-2.13.2.jar;lib/junit-platform-console-standalone-6.0.1.jar;." src/app/*.java test/app/*.java
-
-java -cp "lib/gson-2.13.2.jar;lib/junit-platform-console-standalone-6.0.1.jar;src;test;." org.junit.platform.console.ConsoleLauncher --scan-class-path
+javac -cp "lib/*;." src/app/*.java test/app/*.java    
+java -cp "lib/*.;src;test;." org.junit.platform.console.ConsoleLauncher execute --scan-classpath
 ```
 
 ## Team Members

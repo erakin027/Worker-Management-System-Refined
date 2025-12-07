@@ -1,6 +1,8 @@
 package app;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 
 
@@ -109,7 +111,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 1: IMMEDIATE REQUEST IS ASSIGNED
+       IMMEDIATE REQUEST IS ASSIGNED
     -------------------------------------------- */
     @Test
     void testImmediateServiceAssignment() {
@@ -139,7 +141,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 2: IMMEDIATE REQUEST REJECTED IF NO WORKER
+       IMMEDIATE REQUEST REJECTED IF NO WORKER
     -------------------------------------------- */
     @Test
     void testImmediateServiceRejectedWhenNoWorker() {
@@ -170,7 +172,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 3: SCHEDULED REQUEST MANUAL ASSIGN
+       SCHEDULED REQUEST MANUAL ASSIGN
     -------------------------------------------- */
     @Test
     void testScheduledServiceAssignment() {
@@ -204,7 +206,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 4: MARK SERVICE AS COMPLETED
+       MARK SERVICE AS COMPLETED
     -------------------------------------------- */
     @Test
     void testMarkServiceCompleted() {
@@ -227,7 +229,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 5: PRICE CALCULATION
+       PRICE CALCULATION
     -------------------------------------------- */
     @Test
     void testPriceCalculation() {
@@ -245,7 +247,7 @@ public class TestBackend {
     }
 
     /* --------------------------------------------
-       TEST 6: WORKER BOOKING STORAGE
+       WORKER BOOKING STORAGE
     -------------------------------------------- */
     @Test
     void testWorkerBookingStorage() {
@@ -254,4 +256,205 @@ public class TestBackend {
 
         assertTrue(w.getBookings().contains(101));
     }
+
+    @Test
+    void testWorkerEditDetailsUpdatesCapableWorks() {
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        Work sweeping = new Work(1, "Sweeping", 30, 200);
+        Work mopping  = new Work(2, "Mopping", 40, 300);
+        Work washing  = new Work(3, "Washing", 25, 150);
+
+        workMap.put("Sweeping", sweeping);
+        workMap.put("Mopping", mopping);
+        workMap.put("Washing", washing);
+
+        Worker worker = new Worker("W1", "pass");
+        worker.setCapableWorks(new ArrayList<>(List.of(sweeping)));
+
+        // Simulate edit → replace old skill with new ones
+        worker.setCapableWorks(new ArrayList<>(List.of(mopping, washing)));
+
+        assertEquals(2, worker.getCapableWorks().size());
+        assertTrue(worker.getCapableWorks().contains(mopping));
+        assertTrue(worker.getCapableWorks().contains(washing));
+    }
+
+
+    @Test
+    void testMarkServiceAsCompleted() {
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        Work sweeping = new Work(1, "Sweeping", 30, 200);
+        workMap.put("Sweeping", sweeping);
+
+        String[] fields = {
+            "101", "1", "Immediate", "Basic",
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "2025-12-10", "10:00:00", "11:00:00"
+        };
+
+        ServiceRequest req = new ServiceRequest(fields, workMap);
+        req.setStatus(Status.ASSIGNED);
+
+        req.setStatus(Status.COMPLETED);
+        req.setWorkEndtime("12:30:00");
+
+        assertEquals(Status.COMPLETED, req.getStatus());
+        assertEquals("12:30:00", req.getWorkEndTime());
+    }
+
+    @Test
+    void testWorkerViewBookingsOnlyAssigned() {
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        Work sweep = new Work(1, "Sweeping", 30, 200);
+        workMap.put("Sweeping", sweep);
+
+        // ASSIGNED service
+        String[] f1 = {
+            "1", "1", "Immediate", "Basic",
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "2025-12-10", "10:00:00", "11:00:00"
+        };
+
+        // COMPLETED service
+        String[] f2 = {
+            "2", "2", "Immediate", "Basic",
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "2025-12-10", "10:00:00", "11:30:00"
+        };
+
+        ServiceRequest s1 = new ServiceRequest(f1, workMap);
+        ServiceRequest s2 = new ServiceRequest(f2, workMap);
+
+        ArrayList<ServiceRequest> services = new ArrayList<>();
+        services.add(s1);
+        services.add(s2);
+
+        long active = services.stream()
+            .filter(s -> s.getStatus() == Status.ASSIGNED)
+            .count();
+
+        assertEquals(1, active);
+    }
+
+    @Test
+    void testWorkerHistoryOnlyCompleted() {
+
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        Work sweep = new Work(1, "Sweeping", 30, 200);
+        workMap.put("Sweeping", sweep);
+
+        String[] f1 = {
+            "1", "2", "Immediate", "Basic",
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "2025-12-10", "10:00:00", "11:30:00"
+        };
+
+        String[] f2 = {
+            "2", "1", "Immediate", "Basic",
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "2025-12-10", "10:00:00", "11:00:00"
+        };
+
+        ServiceRequest s1 = new ServiceRequest(f1, workMap); // COMPLETED
+        ServiceRequest s2 = new ServiceRequest(f2, workMap); // ASSIGNED
+
+        ArrayList<ServiceRequest> services = new ArrayList<>();
+        services.add(s1);
+        services.add(s2);
+
+        long completed = services.stream()
+            .filter(s -> s.getStatus() == Status.COMPLETED)
+            .count();
+
+        assertEquals(1, completed);
+    }
+
+
+    @Test
+    void testFullAssignmentThenCompletionFlow() {
+
+        // Setup Work 
+        Work sweep = new Work(1, "Sweeping", 30, 200);
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        workMap.put("Sweeping", sweep);
+
+        // Worker 
+        Worker worker = new Worker("W1", "pass");
+        worker.setName("Test Worker");
+        worker.setGender("M");
+        worker.setArea("City");
+        worker.setAvailable(true);
+        worker.setCapableWorks(new ArrayList<>(List.of(sweep)));
+
+        //  Request (PENDING + IMMEDIATE) 
+        String[] fields = {
+            "201", "0", "Immediate", "Basic",   
+            "2025-12-10", "10:00:00",
+            "City", "C1", "M", "Addr",
+            "[Sweeping]", "NP",
+            "", "", "", "", ""
+        };
+
+        ServiceRequest request = new ServiceRequest(fields, workMap);
+
+        //Repositories
+        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
+        ServiceRepository sr = new ServiceRepository("data/test_services.json");
+
+        AssignmentService as = new AssignmentService(wr, sr);
+
+        // ASSIGN 
+        as.processImmediateRequest(request, new ArrayList<>(List.of(worker)));
+
+        // MUST BE ASSIGNED
+        assertEquals(Status.ASSIGNED, request.getStatus());
+
+        //  COMPLETE 
+        request.setStatus(Status.COMPLETED);
+        request.setWorkEndtime("12:00:00");
+
+        //MUST BE COMPLETED
+        assertEquals(Status.COMPLETED, request.getStatus());
+        assertEquals("12:00:00", request.getWorkEndTime());
+    }
+
+
+
+    @Test
+    void testRejectedRequestRemainsRejected() {
+
+        String[] fields = new String[17];
+        fields[0] = "1";                     // serviceId
+        fields[1] = "-1";                    // REJECTED
+        fields[2] = "Immediate";
+        fields[3] = "Basic";
+        fields[4] = "2025-12-03";
+        fields[5] = "18:00:00";
+        fields[6] = "Moghalrajpuram";
+        fields[7] = "customer1";
+        fields[8] = "M";
+        fields[9] = "addr1";
+        fields[10] = "[Sweeping]";
+        fields[11] = "NP";
+        fields[12] = ""; fields[13] = ""; fields[14] = ""; fields[15] = ""; fields[16] = "";
+
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        workMap.put("Sweeping", new Work(1, "Sweeping", 30, 200));
+
+        ServiceRequest req = new ServiceRequest(fields, workMap);
+
+        assertEquals(Status.REJECTED, req.getStatus());
+    }
+
+
 }

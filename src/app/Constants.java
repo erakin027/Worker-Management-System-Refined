@@ -1,4 +1,3 @@
-// Refactored to JSON & SOLID — do not change workflow without review
 // Constants and enums for Java Admin/Worker modules
 package app;
 

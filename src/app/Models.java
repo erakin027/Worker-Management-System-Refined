@@ -1,6 +1,4 @@
-// Refactored to JSON & SOLID — do not change workflow without review
 // Domain models for Admin/Worker modules (User, Admin, Worker, ServiceRequest, Skill)
-// All text file operations replaced with JSON repository calls
 package app;
 
 import java.time.LocalTime;
@@ -54,13 +52,6 @@ class Admin extends User {
     private String adminId;
     private String adminPass;
     private ArrayList<Worker> workers;
-
-    
-    // public Admin(String adminId, String adminPass) {
-    //     this.adminId = adminId;
-    //     this.adminPass = adminPass;
-    //     this.workers = new ArrayList<>();
-    // }
 
     public Admin(){}
 
@@ -207,7 +198,7 @@ class Worker extends User {
             return;
         }
 
-        // -------- LOGIN --------
+        // Login
         if (ch.equals("2")) {
             print("Enter Worker ID:");
             this.workerId = scanner.nextLine();

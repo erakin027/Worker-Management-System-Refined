@@ -1,6 +1,4 @@
-// Refactored to JSON & SOLID — do not change workflow without review
 // Main entry point for Java Admin/Worker application
-// Preserves original menu structure and workflows
 package app;
 
 import java.util.Scanner;

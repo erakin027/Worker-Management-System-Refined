@@ -1,6 +1,4 @@
-// Refactored to JSON & SOLID — do not change workflow without review
 // Service layer for business logic (AssignmentService, FilterService)
-// Preserves existing assignment logic: immediate auto-assign, scheduled manual assign
 package app;
 
 import java.util.ArrayList;
