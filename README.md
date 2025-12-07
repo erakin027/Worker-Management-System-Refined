@@ -24,7 +24,7 @@ This is the customer-facing part of the system. It allows customers to register,
 
 #### **Features**
 - **Register & Login**  
-  Customers create an account with name, password, gender, locality, and address. They can log in securely to access their dashboard.
+  Customers can create an account with name, password, gender, locality, and address. They can log in to access their dashboard.
 
 - **Create Service Requests**  
   Customers can choose immediate or scheduled services. They select required tasks, gender preference, and provide timing. Scheduling includes validation (future date/time only).
@@ -55,7 +55,7 @@ The admin oversees request approval, worker assignment, and database management.
 
 #### **Features**
 - **Admin Login**  
-  Secure access to admin functionalities.
+  Access to admin functionalities.
 
 - **View Pending Customer Requests**  
   Admin reviews all unprocessed service requests.
@@ -82,19 +82,16 @@ Workers manage their daily schedules and job confirmations.
 
 #### **Features**
 - **Worker Login**  
-  Secure login for workers.
+  Workers can create an account with name, password, gender, locality, and works. They can log in to access their dashboard.
 
 - **View Assigned Jobs**  
   Workers can see all pending tasks assigned by the admin.
 
-- **Accept or Reject Work**  
-  On accepting, the job is added to their calendar. Rejections notify the admin to reassign.
-
+- **View Service History**  
+  Lists all completed services with full details.
+  
 - **Edit Profile**  
   Workers can modify locality, password, or skill sets.
-
-- **View Calendar**  
-  Workers check their upcoming confirmed jobs, preventing schedule conflicts.
 
 ---
 
