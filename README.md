@@ -169,7 +169,7 @@ The instructions below describe how to launch one instance of each module, but y
 
 GCC / G++ 11 or higher (supports C++17)
 
-CMake 3.14+
+CMake 3.14+ - Download cmake from https://github.com/Kitware/CMake/releases/download/v4.2.0/cmake-4.2.0-windows-x86_64.msi
 
 No external libraries required - all dependencies
 (including nlohmann/json and GoogleTest)
@@ -243,7 +243,9 @@ compile.sh all
 From the root directory:
 
 ```bash
-***instructions to be added
+javac -cp "lib/gson-2.13.2.jar;lib/junit-platform-console-standalone-6.0.1.jar;." src/app/*.java test/app/*.java
+
+java -cp "lib/gson-2.13.2.jar;lib/junit-platform-console-standalone-6.0.1.jar;src;test;." org.junit.platform.console.ConsoleLauncher --scan-class-path
 ```
 
 ## Team Members
