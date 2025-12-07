@@ -74,9 +74,6 @@ The admin oversees request approval, worker assignment, and database management.
 - **Reject Requests**  
   If assignment is not possible, the admin rejects the request with a mandatory reason.
 
-- **Manage Worker Profiles**  
-  Add, edit, or update worker skills, locality, and personal details.
-
 ---
 
 ### 3. Worker Module (Java Application)
