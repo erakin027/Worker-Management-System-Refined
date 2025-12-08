@@ -195,6 +195,7 @@ GCC / G++ 11 or higher (supports C++17)
 
 CMake 3.14+ :
 In windows - Download cmake from https://github.com/Kitware/CMake/releases/download/v4.2.0/cmake-4.2.0-windows-x86_64.msi
+
 In Linux - 
 run:
 ```bash
