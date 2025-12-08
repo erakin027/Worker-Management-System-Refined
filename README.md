@@ -151,7 +151,7 @@ These tests cover a wide range of functionality, including:
 This ensures that the customer-side logic is thoroughly verified, reliable, and resistant to edge-case failures.
 
 ### Worker/Admin Java End
-A comprehensive suite of 17 automated tests was developed for the Java backend using the JUnit framework. These tests validate both core domain logic and end-to-end service workflows, including:
+A comprehensive suite of automated tests was developed for the Java backend using the JUnit framework. These tests validate both core domain logic and end-to-end service workflows, including:
 
 - work entity creation and attribute validation
 
