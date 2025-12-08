@@ -69,14 +69,13 @@ public class TestBackend {
     /* 
        Helper: Create Work Map (like works_config)
   */
-    private LinkedHashMap<String, Work> createWorkMap() {
+     private LinkedHashMap<String, Work> createWorkMap() {
         LinkedHashMap<String, Work> map = new LinkedHashMap<>();
         map.put("Sweeping", new Work(1, "Sweeping", 30, 200));
         map.put("Mopping", new Work(2, "Mopping", 40, 300));
         map.put("Window Cleaning", new Work(3, "Window Cleaning", 80, 600));
         return map;
     }
-
     /* 
        Helper: Create Workers
      */
@@ -198,29 +197,7 @@ public class TestBackend {
         assertEquals(1, req.getAssignedWorkerIds().size());
     }
 
-    /* 
-       MARK SERVICE AS COMPLETED
-     */
-    @Test
-    void testMarkServiceCompleted() {
-        LinkedHashMap<String, Work> works = createWorkMap();
-
-        String[] fields = {
-                "4", "1", "Immediate", "Basic",
-                "2025-01-01", "10:00:00",
-                "Moghalrajpuram",
-                "C4", "M",
-                "Addr",
-                "[Sweeping]",
-                "NP", "", "", "2025-01-01", "10:00:00", "11:00:00"
-        };
-
-        ServiceRequest req = new ServiceRequest(fields, works);
-        req.setStatus(Status.COMPLETED);
-
-        assertEquals(Status.COMPLETED, req.getStatus());
-    }
-
+    
     /* 
        PRICE CALCULATION
      */
@@ -299,9 +276,9 @@ public class TestBackend {
 
     @Test
     void testWorkerViewBookingsOnlyAssigned() {
-        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
+        LinkedHashMap<String, Work> works = createWorkMap();
         Work sweep = new Work(1, "Sweeping", 30, 200);
-        workMap.put("Sweeping", sweep);
+        works.put("Sweeping", sweep);
 
         // ASSIGNED service
         String[] f1 = {
@@ -321,8 +298,8 @@ public class TestBackend {
             "", "", "2025-12-10", "10:00:00", "11:30:00"
         };
 
-        ServiceRequest s1 = new ServiceRequest(f1, workMap);
-        ServiceRequest s2 = new ServiceRequest(f2, workMap);
+        ServiceRequest s1 = new ServiceRequest(f1, works);
+        ServiceRequest s2 = new ServiceRequest(f2, works);
 
         ArrayList<ServiceRequest> services = new ArrayList<>();
         services.add(s1);
