@@ -563,7 +563,7 @@ class Worker extends User {
         print(works);
     }
 
-    private void markWorkAsCompleted() {
+    public void markWorkAsCompleted() {
 
         if (bookings.isEmpty()) {
             print("You have no bookings.");

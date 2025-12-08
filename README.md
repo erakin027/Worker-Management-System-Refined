@@ -297,9 +297,7 @@ From the root directory:
 
 ```bash
 javac -cp "lib/*:." src/app/*.java test/app/*.java
-java -cp "lib/*:src:test:." \
-    org.junit.platform.console.ConsoleLauncher execute \
-    --scan-class-path
+java -cp "lib/*:src:test:." \org.junit.platform.console.ConsoleLauncher execute \--scan-class-path
 ```
 
 ---
