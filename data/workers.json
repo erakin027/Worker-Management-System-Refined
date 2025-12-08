@@ -5,8 +5,8 @@
     "name": "Worker 1",
     "gender": "M",
     "area": "Moghalrajpuram",
-    "isAvailable": true,
-    "matchingCount": 0,
+    "isAvailable": false,
+    "matchingCount": 1,
     "capableWorks": [
       "Window Cleaning",
       "Mopping",
@@ -16,6 +16,9 @@
       "Mowing",
       "Pruning"
     ],
-    "bookings": []
+    "bookings": [
+      1,
+      2
+    ]
   }
 ]

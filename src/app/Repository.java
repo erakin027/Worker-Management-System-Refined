@@ -224,7 +224,10 @@ class WorkerRepository {
      * @param worker Worker with updated information
      */
     public void update(Worker worker) {
-        ArrayList<Worker> workers = loadAll(new java.util.LinkedHashMap<>());
+        WorkRepository workRepo = new WorkRepository("data/works_config.json");
+        workRepo.loadAllWorks();
+        LinkedHashMap<String, Work> workMatchings =workRepo.getAllWorks();
+        ArrayList<Worker> workers = loadAll(workMatchings);
         for (int i = 0; i < workers.size(); i++) {
             if (workers.get(i).getWorkerId().equals(worker.getWorkerId())) {
                 workers.set(i, worker);
@@ -244,7 +247,7 @@ class WorkerRepository {
      */
     public ArrayList<Worker> findEligibleWorkers(String locality, GenderPref genderPref, 
                                                  ArrayList<Work> requestedWorks, 
-                                                 java.util.LinkedHashMap<String, Work> workMatchings) {
+                                                 LinkedHashMap<String, Work> workMatchings) {
         ArrayList<Worker> allWorkers = loadAll(workMatchings);
         ArrayList<Worker> eligible = new ArrayList<>();
         
@@ -368,7 +371,7 @@ class WorkerRepository {
      * @param workMatchings Map of work types
      * @return Worker object
      */
-    private Worker deserializeWorker(JsonObject json, java.util.LinkedHashMap<String, Work> workMatchings) {
+    private Worker deserializeWorker(JsonObject json, LinkedHashMap<String, Work> workMatchings) {
         try {
             String workerId = json.get("workerId").getAsString();
             String workerPass = json.get("workerPass").getAsString();
@@ -524,7 +527,7 @@ class ServiceRepository {
      * @return ArrayList of service requests for the customer
      */
     public ArrayList<ServiceRequest> findByCustomer(String customerId, 
-                                                     java.util.LinkedHashMap<String, Work> workMatchings) {
+                                                     LinkedHashMap<String, Work> workMatchings) {
         ArrayList<ServiceRequest> allServices = loadAll(workMatchings);
         ArrayList<ServiceRequest> result = new ArrayList<>();
         for (ServiceRequest service : allServices) {
@@ -542,7 +545,7 @@ class ServiceRepository {
      * @return ArrayList of service requests with the specified status
      */
     public ArrayList<ServiceRequest> findByStatus(Status status, 
-                                                  java.util.LinkedHashMap<String, Work> workMatchings) {
+                                                  LinkedHashMap<String, Work> workMatchings) {
         ArrayList<ServiceRequest> allServices = loadAll(workMatchings);
         ArrayList<ServiceRequest> result = new ArrayList<>();
         for (ServiceRequest service : allServices) {
@@ -664,7 +667,7 @@ class ServiceRepository {
      * @param workMatchings Map of work types
      * @return ServiceRequest object
      */
-    private ServiceRequest deserializeServiceRequest(JsonObject json, java.util.LinkedHashMap<String, Work> workMatchings) {
+    private ServiceRequest deserializeServiceRequest(JsonObject json, LinkedHashMap<String, Work> workMatchings) {
         try {
             String[] fields = new String[17];
             fields[0] = String.valueOf(json.get("id").getAsInt());
