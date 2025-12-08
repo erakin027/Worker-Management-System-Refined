@@ -16,7 +16,6 @@ public class TestBackend {
 
     @Test
     void testWorkConstructorAndAccessors() {
-        // Using signature you provided
         Work w = new Work(1, "Sweeping", 30, 200.0);
         assertEquals(1, w.getId(), "Work id should be preserved");
         assertEquals("Sweeping", w.getWorkName(), "Work name should match");
@@ -27,11 +26,10 @@ public class TestBackend {
     @Test
     void testWorkerBasicConstructor() {
         Worker worker = new Worker("w1", "pass123");
-        // Basic checks — does ctor preserve fields (getters must exist)
+        // Basic checks
         assertEquals("w1", worker.getWorkerId());
         assertEquals("pass123", worker.getWorkerPass());
         // Initially no name/gender/area unless set by repository lookup
-        // Availability default check (if your ctor sets true by default)
         // We test the setter/getter roundtrip if available
         worker.setAvailable(false);
         assertFalse(worker.isAvailableNow(), "Worker availability toggled");
@@ -39,7 +37,7 @@ public class TestBackend {
 
     @Test
     void testAssignmentServiceConstruction() {
-        // Construct repositories with the typical file-path strings (they won't be used here)
+        
         WorkerRepository wr = new WorkerRepository("data/workers.json");
         ServiceRepository sr = new ServiceRepository("data/services.json");
 
@@ -58,7 +56,6 @@ public class TestBackend {
         works.add(new Work(1, "Window Cleaning", 80, 600.0));
         works.add(new Work(2, "Mopping", 40, 300.0));
 
-        // Assuming Plan.BASIC exists in your code
         double price = as.calculatePrice(works, Plan.BASIC);
         // For BASIC we expect no discount: 600 + 300 = 900
         assertEquals(900.0, price, 0.0001);
@@ -67,15 +64,14 @@ public class TestBackend {
     @Test
     void testWorkerAddBookingAndGetBookings() {
         Worker w = new Worker("w2", "pw");
-        // addBookingId likely exists per your model
         w.addBookingId(100);
         assertTrue(w.getBookings().contains(100), "Booking id should be stored");
     }
 
 
-    /* --------------------------------------------
+    /* 
        Helper: Create Work Map (like works_config)
-    -------------------------------------------- */
+  */
     private LinkedHashMap<String, Work> createWorkMap() {
         LinkedHashMap<String, Work> map = new LinkedHashMap<>();
         map.put("Sweeping", new Work(1, "Sweeping", 30, 200));
@@ -84,9 +80,9 @@ public class TestBackend {
         return map;
     }
 
-    /* --------------------------------------------
+    /* 
        Helper: Create Workers
-    -------------------------------------------- */
+     */
     private ArrayList<Worker> createWorkers(LinkedHashMap<String, Work> works) {
         Worker w1 = new Worker("W1", "p1");
         w1.setName("Arjun");
@@ -110,9 +106,9 @@ public class TestBackend {
         return new ArrayList<>(List.of(w1, w2));
     }
 
-    /* --------------------------------------------
+    /* 
        IMMEDIATE REQUEST IS ASSIGNED
-    -------------------------------------------- */
+     */
     @Test
     void testImmediateServiceAssignment() {
         LinkedHashMap<String, Work> works = createWorkMap();
@@ -140,9 +136,9 @@ public class TestBackend {
         assertFalse(req.getAssignedWorkerIds().isEmpty());
     }
 
-    /* --------------------------------------------
+    /* 
        IMMEDIATE REQUEST REJECTED IF NO WORKER
-    -------------------------------------------- */
+     */
     @Test
     void testImmediateServiceRejectedWhenNoWorker() {
         LinkedHashMap<String, Work> works = createWorkMap();
@@ -171,9 +167,9 @@ public class TestBackend {
         assertEquals(Status.REJECTED, req.getStatus());
     }
 
-    /* --------------------------------------------
+    /* 
        SCHEDULED REQUEST MANUAL ASSIGN
-    -------------------------------------------- */
+     */
     @Test
     void testScheduledServiceAssignment() {
         LinkedHashMap<String, Work> works = createWorkMap();
@@ -205,9 +201,9 @@ public class TestBackend {
         assertEquals(1, req.getAssignedWorkerIds().size());
     }
 
-    /* --------------------------------------------
+    /* 
        MARK SERVICE AS COMPLETED
-    -------------------------------------------- */
+     */
     @Test
     void testMarkServiceCompleted() {
         LinkedHashMap<String, Work> works = createWorkMap();
@@ -228,9 +224,9 @@ public class TestBackend {
         assertEquals(Status.COMPLETED, req.getStatus());
     }
 
-    /* --------------------------------------------
+    /* 
        PRICE CALCULATION
-    -------------------------------------------- */
+     */
     @Test
     void testPriceCalculation() {
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
@@ -246,9 +242,9 @@ public class TestBackend {
         assertEquals(450.0, price, 0.01); // 10% discount
     }
 
-    /* --------------------------------------------
+    /* 
        WORKER BOOKING STORAGE
-    -------------------------------------------- */
+     */
     @Test
     void testWorkerBookingStorage() {
         Worker w = new Worker("W9", "pw");

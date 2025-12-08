@@ -611,10 +611,10 @@ class Worker extends User {
                 service.setStatus(Status.COMPLETED);
                 LocalTime now = LocalTime.now();
                 service.setWorkEndtime(now.toString());
-                serviceRepo.update(service);
+                serviceRepo.update(service, workMatchings);
                 this.isAvailable = true;
                 workerRepo.update(this);
-    
+                
                 print("Service marked as COMPLETED successfully.");
                 found = true;
                 break;
@@ -626,8 +626,7 @@ class Worker extends User {
         }
     }
     
-    
-    
+
     /**
      * Update worker file - uses JSON repository instead of text file
      */

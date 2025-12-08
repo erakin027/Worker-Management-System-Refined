@@ -16,6 +16,8 @@
       "Mowing",
       "Pruning"
     ],
-    "bookings": []
+    "bookings": [
+      1
+    ]
   }
 ]

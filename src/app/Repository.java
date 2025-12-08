@@ -509,8 +509,8 @@ class ServiceRepository {
      * Update existing service request in repository
      * @param service ServiceRequest with updated information
      */
-    public void update(ServiceRequest service) {
-        ArrayList<ServiceRequest> services = loadAll(new LinkedHashMap<>());
+    public void update(ServiceRequest service, LinkedHashMap<String, Work> workMatchings) {
+        ArrayList<ServiceRequest> services = loadAll(workMatchings);
         for (int i = 0; i < services.size(); i++) {
             if (services.get(i).getServiceId() == service.getServiceId()) {
                 services.set(i, service);
