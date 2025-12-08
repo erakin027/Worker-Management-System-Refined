@@ -177,7 +177,9 @@ These tests ensure that worker management, service assignment, pricing, and life
 
 
 ### Integration Testing
+
 We also carried out a broad set of manual integration tests to verify that the C++ and Java modules interact smoothly within the overall system. These tests focused on validating data exchange, workflow continuity, and user-facing behavior across module boundaries. Through this process, we confirmed that both components operate together reliably and provide a seamless end-to-end experience.
+
 ---
 
 ## Building & Run Instructions
