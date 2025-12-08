@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "status": 2,
+    "status": 1,
     "type": 0,
     "plan": "Basic",
     "bookingDate": "2025-12-08",
@@ -12,8 +12,8 @@
     "address": "1",
     "genderPref": "NP",
     "workDate": "2025-12-08",
-    "workStartTime": "00:44:51",
-    "workEndTime": "12:41:21.105833100",
+    "workStartTime": "12:40:46",
+    "workEndTime": "14:00:46",
     "price": 600.0,
     "requestedServices": [
       "Window Cleaning"
@@ -34,6 +34,7 @@
     "customerGender": "M",
     "address": "1",
     "genderPref": "NP",
+    "rejectionReason": "No worker available for the following works: Mopping",
     "workDate": "2025-12-08",
     "workStartTime": "00:45:15",
     "price": 300.0,
