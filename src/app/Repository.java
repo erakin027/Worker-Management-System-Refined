@@ -10,24 +10,20 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonElement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.io.*;
 
 class WorkRepository{
     private String filePath;
-    private Gson gson;
 
     private LinkedHashMap<String, Work> workByName = new LinkedHashMap<>();
-    //private HashMap<Integer, Work> workById = new HashMap<>();
 
     /**
      * Constructor - initializes repository with file path
-     * @param filePath Path to works_config.json
+     * @param filePath Path to works_config.json;
      */
     public WorkRepository(String filePath) {
         this.filePath = filePath;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
         ensureDirectoryExists();
     }
 
@@ -217,8 +213,8 @@ class WorkerRepository {
      * Add new worker to repository
      * @param worker Worker to add
      */
-    public void add(Worker worker) {
-        ArrayList<Worker> workers = loadAll(new LinkedHashMap<>());
+    public void add(Worker worker, LinkedHashMap <String, Work> workMatchings) {
+        ArrayList<Worker> workers = loadAll(workMatchings);
         workers.add(worker);
         saveAll(workers);
     }
@@ -286,7 +282,7 @@ class WorkerRepository {
      * Design Pattern: Atomic Operation - ensures data integrity
      * If write fails, original file remains intact (no partial writes)
      * 
-     * Single Responsibility: Only handles atomic file writing, no business logic
+     * Single Responsibility: Only handles atomic file writing
      * 
      * @param data JsonArray to write
      */

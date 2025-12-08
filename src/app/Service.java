@@ -4,10 +4,10 @@ package app;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
@@ -102,10 +102,8 @@ class AssignmentService {
         
         // Check if all works were assigned
         for (Work work : request.getRequestedWorks()) {
-            boolean assigned = false;
             for (ArrayList<Work> assignedWorks : workAssignments.values()) {
                 if (assignedWorks.contains(work)) {
-                    assigned = true;
                     remainingWorks.remove(work);
                     break;
                 }
@@ -148,12 +146,7 @@ class AssignmentService {
         
         // Step 7: Set status to assigned and calculate price
         request.setStatus(Status.ASSIGNED);
-        
-        // Generate matched worker IDs string
-        String matchedWorkers = "[" + workAssignments.keySet().stream()
-            .map(Worker::getWorkerId)
-            .collect(Collectors.joining(",")) + "]";
-        
+                
         // Calculate price with discount
         double price = calculatePrice(request.getRequestedWorks(), request.getPlanName());
         request.setPrice(price);
@@ -347,18 +340,9 @@ class AssignmentService {
      * @return End time in HH:mm:ss format
      */
     public String calculateEndTime(String workStartTime, int totalDurationMinutes) {
-        String[] timeParts = workStartTime.split(":");
-        int hour = Integer.parseInt(timeParts[0]);
-        int minute = Integer.parseInt(timeParts[1]);
-        int second = Integer.parseInt(timeParts[2]);
-        
-        // Add total duration to start time
-        minute += totalDurationMinutes;
-        hour += minute / 60;
-        minute %= 60;
-        hour %= 24;
-        
-        return String.format("%02d:%02d:%02d", hour, minute, second);
+        LocalTime start = LocalTime.parse(workStartTime.substring(0, 8));
+        LocalTime end = start.plusMinutes(totalDurationMinutes);
+        return end.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
     
     /**

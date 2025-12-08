@@ -51,7 +51,6 @@ abstract class User {
 class Admin extends User {
     private String adminId;
     private String adminPass;
-    private ArrayList<Worker> workers;
 
     public Admin(){}
 
@@ -101,13 +100,7 @@ class Admin extends User {
         return adminPass;
     }
     
-    /**
-     * Load workers from JSON repository
-     */
-    public void loadWorkers(LinkedHashMap<String, Work> workMatchings) {
-        this.workers = workerRepo.loadAll(workMatchings);
-    }
-    
+ 
     
 }
 
@@ -335,7 +328,7 @@ class Worker extends User {
         this.bookings = new ArrayList<>();
         
         // Save to JSON repository instead of text file
-        workerRepo.add(this);
+        workerRepo.add(this, workMatchings);
         print("Worker registered successfully!");
     }
     
