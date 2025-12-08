@@ -185,6 +185,8 @@ Each terminal runs its own independent module.
 **Note:**  You may open as many terminals as you like to simulate multiple customers and multiple workers concurrently. 
 The instructions below describe how to launch one instance of each module, but you can repeat the steps to run additional instances.
 
+First download the folder as a zip and extract it on to your local machine.
+
 ### C++ customer End
 
 **Requirements**
@@ -193,7 +195,17 @@ GCC / G++ 11 or higher (supports C++17)
 
 CMake 3.14+ :
 In windows - Download cmake from https://github.com/Kitware/CMake/releases/download/v4.2.0/cmake-4.2.0-windows-x86_64.msi
+In Linux - 
+run:
+```bash
+sudo apt update
+sudo apt install cmake
+```
 
+Verify with:
+```bash
+cmake --version
+```
 
 No external libraries required - all dependencies
 (including nlohmann/json and GoogleTest)
