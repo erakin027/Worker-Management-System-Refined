@@ -151,7 +151,7 @@ These tests cover a wide range of functionality, including:
 This ensures that the customer-side logic is thoroughly verified, reliable, and resistant to edge-case failures.
 
 ### Worker/Admin Java End
-A comprehensive suite of automated tests was developed for the Java backend using the JUnit framework. These tests validate both core domain logic and end-to-end service workflows, including:
+A comprehensive suite of 17 automated tests was developed for the Java backend using the JUnit framework. These tests validate both core domain logic and end-to-end service workflows, including:
 
 - work entity creation and attribute validation
 
@@ -199,7 +199,7 @@ No external libraries required - all dependencies
 (including nlohmann/json and GoogleTest)
 are bundled inside the repository.
 
-From the project root:
+From the root directory:
 
 ```bash
 mkdir build
@@ -246,7 +246,7 @@ The project includes scripts for both Windows and Linux:
 
 **Windows:**
 
-From the project root:
+From the root directory:
 
 ```bash
 ./compile.bat all
@@ -254,7 +254,7 @@ From the project root:
 
 **Linux:**
 
-From the project root:
+From the root directory:
 
 ```bash
 chmod +x compile.sh
@@ -264,12 +264,27 @@ chmod +x compile.sh
 
 **To run the tests:**
 
+**Windows:**
+
 From the root directory:
 
 ```bash
 javac -cp "lib/*;." src/app/*.java test/app/*.java    
 java -cp "lib/*.;src;test;." org.junit.platform.console.ConsoleLauncher execute --scan-classpath
 ```
+
+**Linux:**
+
+From the root directory:
+
+```bash
+javac -cp "lib/*:." src/app/*.java test/app/*.java
+java -cp "lib/*:src:test:." \
+    org.junit.platform.console.ConsoleLauncher execute \
+    --scan-class-path
+```
+
+---
 
 ## Team Members
 
