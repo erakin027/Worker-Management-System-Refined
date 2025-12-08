@@ -693,11 +693,10 @@ class ServiceRepository {
             fields[10] = worksStr.toString();
             
             fields[11] = json.get("genderPref").getAsString();
-            fields[12] = json.has("scheduledDate") ? json.get("scheduledDate").getAsString() : "";
-            fields[13] = json.has("scheduledTime") ? json.get("scheduledTime").getAsString() : "";
+            fields[12] = json.has("workDate") ? json.get("workDate").getAsString() : "";
+            fields[13] = json.has("workStartTime") ? json.get("workStartTime").getAsString() : "";
             fields[14] = json.has("workDate") ? json.get("workDate").getAsString() : "";
-            fields[15] = json.has("workStartTime") ? json.get("workStartTime").getAsString() : "";
-            fields[16] = json.has("workEndTime") ? json.get("workEndTime").getAsString() : "";
+            fields[15] = json.has("workEndTime") ? json.get("workEndTime").getAsString() : "";
             
             // Create ServiceRequest (replaces Immediate/Scheduled hierarchy)
             ServiceRequest service = new ServiceRequest(fields, workMatchings);

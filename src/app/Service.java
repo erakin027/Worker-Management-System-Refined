@@ -216,37 +216,45 @@ class AssignmentService {
         }
         
         // Step 5: Admin manually enters worker IDs
-        System.out.println("Enter the IDs of workers to assign (separated by space), or type 'not available' if no workers are suitable:");
-        String input = scanner.nextLine();
-        
-        if (input.equalsIgnoreCase("not available")) {
-            System.out.println("Service request rejected: No suitable workers.");
-            request.setStatus(Status.REJECTED);
-            return;
-        }
-        
-        // Step 6: Parse selected worker IDs
-        String[] assignedIds = input.split(" ");
+        // Step 5 :Admin manually enters worker IDs (loop until valid or not available)
         ArrayList<Worker> assignedWorkers = new ArrayList<>();
-        
-        for (String workerId : assignedIds) {
-            Worker assignedWorker = eligibleWorkers.stream()
-                .filter(w -> w.getWorkerId().equals(workerId.trim()))
-                .findFirst()
-                .orElse(null);
-            if (assignedWorker != null) {
-                assignedWorkers.add(assignedWorker);
-            } else {
-                System.out.println("Invalid worker ID: " + workerId);
+
+        while (true) {
+            System.out.println("Enter the IDs of workers to assign (separated by space), or type 'not available' if no workers are suitable:");
+            String input = scanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("not available")) {
+                System.out.println("Service request rejected: No suitable workers.");
+                request.setStatus(Status.REJECTED);
+                return;
             }
+
+            String[] assignedIds = input.split("\\s+");
+            assignedWorkers.clear();
+            boolean allValid = true;
+
+            for (String workerId : assignedIds) {
+                Worker assignedWorker = eligibleWorkers.stream()
+                    .filter(w -> w.getWorkerId().equals(workerId))
+                    .findFirst()
+                    .orElse(null);
+
+                if (assignedWorker != null) {
+                    assignedWorkers.add(assignedWorker);
+                } else {
+                    System.out.println("Invalid worker ID: " + workerId);
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (allValid && !assignedWorkers.isEmpty()) {
+                break;   
+            }
+
+            System.out.println("Please re-enter valid and eligible worker IDs.\n");
         }
-        
-        if (assignedWorkers.isEmpty()) {
-            System.out.println("No workers assigned.");
-            request.setStatus(Status.REJECTED);
-            return;
-        }
-        
+  
         // Step 7: Assign works to selected workers using greedy algorithm
         LinkedHashMap<Worker, ArrayList<Work>> workerAssignments = FilterService.assignWorkers(
             request.getRequestedWorks(),

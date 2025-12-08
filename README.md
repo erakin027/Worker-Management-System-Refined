@@ -190,7 +190,7 @@ Each terminal runs its own independent module.
 **Note:**  You may open as many terminals as you like to simulate multiple customers and multiple workers concurrently. 
 The instructions below describe how to launch one instance of each module, but you can repeat the steps to run additional instances.
 
-First download the folder as a zip and extract it on to your local machine.
+First download the folder as a zip and extract it on to your local machine. Then delete all .json files in data folder except admin.json and works_config.json(if present) if you want to test from sratch.
 
 ### C++ customer End
 

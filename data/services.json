@@ -1,46 +1,38 @@
 [
   {
-    "id": 1,
-    "status": 1,
-    "type": 0,
-    "plan": "Basic",
-    "bookingDate": "2025-12-08",
-    "bookingTime": "00:44:51",
-    "locality": "Moghalrajpuram",
-    "customerID": "c1",
-    "customerGender": "M",
-    "address": "1",
-    "genderPref": "NP",
-    "workDate": "2025-12-08",
-    "workStartTime": "12:40:46",
-    "workEndTime": "14:00:46",
-    "price": 600.0,
-    "requestedServices": [
-      "Window Cleaning"
-    ],
-    "assignedWorkerIds": [
-      "w1"
-    ]
+      "address": "1",
+      "bookingDate": "2025-12-08",
+      "bookingTime": "00:44:51",
+      "customerGender": "M",
+      "customerID": "c1",
+      "genderPref": "NP",
+      "id": 1,
+      "locality": "Moghalrajpuram",
+      "plan": "Basic",
+      "price": 600.0,
+      "requestedServices": [
+          "Window Cleaning"
+      ],
+      "status": 0,
+      "type": 0
   },
   {
-    "id": 2,
-    "status": -1,
-    "type": 0,
-    "plan": "Basic",
-    "bookingDate": "2025-12-08",
-    "bookingTime": "00:45:15",
-    "locality": "Moghalrajpuram",
-    "customerID": "c1",
-    "customerGender": "M",
-    "address": "1",
-    "genderPref": "NP",
-    "rejectionReason": "No worker available for the following works: Mopping",
-    "workDate": "2025-12-08",
-    "workStartTime": "00:45:15",
-    "price": 300.0,
-    "requestedServices": [
-      "Mopping"
-    ],
-    "assignedWorkerIds": []
+      "address": "1",
+      "bookingDate": "2025-12-08",
+      "bookingTime": "00:45:15",
+      "customerGender": "M",
+      "customerID": "c1",
+      "genderPref": "NP",
+      "id": 2,
+      "locality": "Moghalrajpuram",
+      "plan": "Basic",
+      "price": 300.0,
+      "requestedServices": [
+          "Mopping"
+      ],
+      "status": 0,
+      "type": 1,
+      "workDate": "2026-01-01",
+      "workStartTime": "12:00:00"
   }
 ]

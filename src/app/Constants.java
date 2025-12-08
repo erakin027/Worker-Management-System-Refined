@@ -19,6 +19,12 @@ enum ServiceType {
     }
     
     public static ServiceType fromString(String str) {
+        if ("0".equals(str)) {
+            return IMMEDIATE;
+        } else if ("1".equals(str)) {
+            return SCHEDULING;
+        }
+
         for (ServiceType type : values()) {
             if (type.displayName.equalsIgnoreCase(str)) {
                 return type;
