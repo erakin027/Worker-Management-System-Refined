@@ -141,7 +141,7 @@ class WorkerRepository {
      */
     private void ensureDirectoryExists() {
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (file.getParentFile() != null) {
                 file.getParentFile().mkdirs();
             }
@@ -158,7 +158,7 @@ class WorkerRepository {
     public ArrayList<Worker> loadAll(LinkedHashMap<String, Work> workMatchings) {
         ArrayList<Worker> workers = new ArrayList<>();
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (!file.exists() || file.length() == 0) {
                 return workers; // Return empty list if file doesn't exist
             }
@@ -199,7 +199,7 @@ class WorkerRepository {
      * @param workMatchings Map of work types for deserialization
      * @return Worker if found, null otherwise
      */
-    public Worker findById(String workerId, java.util.LinkedHashMap<String, Work> workMatchings) {
+    public Worker findById(String workerId, LinkedHashMap<String, Work> workMatchings) {
         ArrayList<Worker> workers = loadAll(workMatchings);
         for (Worker worker : workers) {
             if (worker.getWorkerId().equals(workerId)) {
@@ -224,10 +224,14 @@ class WorkerRepository {
      * @param worker Worker with updated information
      */
     public void update(Worker worker) {
+<<<<<<< HEAD
         WorkRepository workRepo = new WorkRepository("data/works_config.json");
         workRepo.loadAllWorks();
         LinkedHashMap<String, Work> workMatchings =workRepo.getAllWorks();
         ArrayList<Worker> workers = loadAll(workMatchings);
+=======
+        ArrayList<Worker> workers = loadAll(new LinkedHashMap<>());
+>>>>>>> c792658 (neat testcase)
         for (int i = 0; i < workers.size(); i++) {
             if (workers.get(i).getWorkerId().equals(worker.getWorkerId())) {
                 workers.set(i, worker);
@@ -300,8 +304,8 @@ class WorkerRepository {
             
             // Atomic rename - this is an atomic operation on most filesystems
             // Either succeeds completely or fails completely (no partial state)
-            java.io.File tempFile = new java.io.File(tempPath);
-            java.io.File targetFile = new java.io.File(filePath);
+            File tempFile = new File(tempPath);
+            File targetFile = new File(filePath);
             if (targetFile.exists()) {
                 targetFile.delete();
             }
@@ -309,7 +313,7 @@ class WorkerRepository {
         } catch (IOException e) {
             System.err.println("Error writing workers file: " + e.getMessage());
             // Clean up temp file on error to prevent orphaned files
-            new java.io.File(tempPath).delete();
+            new File(tempPath).delete();
         }
     }
     
@@ -319,7 +323,7 @@ class WorkerRepository {
      */
     private JsonArray readFromFile() {
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (!file.exists() || file.length() == 0) {
                 return new JsonArray();
             }
@@ -435,7 +439,7 @@ class ServiceRepository {
      */
     private void ensureDirectoryExists() {
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (file.getParentFile() != null) {
                 file.getParentFile().mkdirs();
             }
@@ -452,7 +456,7 @@ class ServiceRepository {
     public ArrayList<ServiceRequest> loadAll(LinkedHashMap<String, Work> workMatchings) {
         ArrayList<ServiceRequest> services = new ArrayList<>();
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (!file.exists() || file.length() == 0) {
                 return services; // Return empty list if file doesn't exist
             }
@@ -569,8 +573,8 @@ class ServiceRepository {
             }
             
             // Atomic rename
-            java.io.File tempFile = new java.io.File(tempPath);
-            java.io.File targetFile = new java.io.File(filePath);
+            File tempFile = new File(tempPath);
+            File targetFile = new File(filePath);
             if (targetFile.exists()) {
                 targetFile.delete();
             }
@@ -578,7 +582,7 @@ class ServiceRepository {
         } catch (IOException e) {
             System.err.println("Error writing services file: " + e.getMessage());
             // Clean up temp file on error
-            new java.io.File(tempPath).delete();
+            new File(tempPath).delete();
         }
     }
     
@@ -588,7 +592,7 @@ class ServiceRepository {
      */
     private JsonArray readFromFile() {
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (!file.exists() || file.length() == 0) {
                 return new JsonArray();
             }
@@ -694,8 +698,7 @@ class ServiceRepository {
             fields[11] = json.get("genderPref").getAsString();
             fields[12] = json.has("workDate") ? json.get("workDate").getAsString() : "";
             fields[13] = json.has("workStartTime") ? json.get("workStartTime").getAsString() : "";
-            fields[14] = json.has("workDate") ? json.get("workDate").getAsString() : "";
-            fields[15] = json.has("workEndTime") ? json.get("workEndTime").getAsString() : "";
+            fields[14] = json.has("workEndTime") ? json.get("workEndTime").getAsString() : "";
             
             // Create ServiceRequest (replaces Immediate/Scheduled hierarchy)
             ServiceRequest service = new ServiceRequest(fields, workMatchings);
@@ -746,7 +749,7 @@ class AdminRepository {
      */
     private void ensureDirectoryExists() {
         try {
-            java.io.File file = new java.io.File(filePath);
+            File file = new File(filePath);
             if (file.getParentFile() != null) {
                 file.getParentFile().mkdirs();
             }

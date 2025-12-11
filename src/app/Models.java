@@ -37,7 +37,13 @@ abstract class User {
    
     public abstract void handleStart();
     public abstract void displayMenu();
+
+    public void setServiceRepo(ServiceRepository serviceRepo){this.serviceRepo = serviceRepo;}
+    public void setScanner(Scanner scanner){ this.scanner = scanner;}
+    public void setWorkerRepo(WorkerRepository workerRepo) { this.workerRepo = workerRepo;}
+    public void setWorkMatchings(LinkedHashMap<String, Work> workMatchings){this.workMatchings = workMatchings;}
 }
+
 
 /**
  * Admin model - handles worker assignment and pending request processing
@@ -688,14 +694,14 @@ class ServiceRequest {
             // Immediate = work happens now
             this.workDate = this.bookingDate;
             this.workStartTime = this.bookingTime;
-            this.workEndTime = fields[15];   // usually empty initially
+            this.workEndTime = fields[14];   // usually empty initially
         }
 
         else if (this.typeName == ServiceType.SCHEDULING) {
             // Scheduled = work happens in future
             this.workDate = this.scheduledDate;
             this.workStartTime = this.scheduledTime;
-            this.workEndTime = fields[15];   // filled after assignment
+            this.workEndTime = fields[14];   // filled after assignment
         }
     }
     

@@ -1,0 +1,27 @@
+[
+  {
+    "id": 4,
+    "status": 2,
+    "type": 0,
+    "plan": "Basic",
+    "bookingDate": "2026-01-01",
+    "bookingTime": "10:00:00",
+    "locality": "Moghalrajpuram",
+    "customerID": "C4",
+    "customerGender": "M",
+    "address": "Addr",
+    "genderPref": "NP",
+    "scheduledDate": "2026-01-01",
+    "scheduledTime": "10:00:00",
+    "workDate": "2026-01-01",
+    "workStartTime": "10:00:00",
+    "workEndTime": "07:55:55.671145467",
+    "price": 60.0,
+    "requestedServices": [
+      "Sweeping"
+    ],
+    "assignedWorkerIds": [
+      "W1"
+    ]
+  }
+]

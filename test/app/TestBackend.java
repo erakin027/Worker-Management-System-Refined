@@ -3,33 +3,88 @@ package app;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.time.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class TestBackend {
 
+    //Helper to create Works
+    private LinkedHashMap<String, Work> createWorkMatchings() {
+        WorkRepository workRepo = new WorkRepository("data/works_config.json");
+        workRepo.loadAllWorks();
+        LinkedHashMap<String, Work> workMatchings =workRepo.getAllWorks();
+
+        return workMatchings;
+    }
+
+    //Helper to create workers
+    private ArrayList<Worker> createWorkers(LinkedHashMap<String, Work> works) {
+        Worker w1 = new Worker("W1", "p1");
+        w1.setName("Arjun");
+        w1.setGender("M");
+        w1.setArea("Moghalrajpuram");
+        w1.setAvailable(true);
+        w1.setCapableWorks(new ArrayList<>(List.of(
+                works.get("Sweeping"),
+                works.get("Mopping")
+        )));
+        w1.setWorkMatchings(works);
+
+        Worker w2 = new Worker("W2", "p2");
+        w2.setName("Sita");
+        w2.setGender("F");
+        w2.setArea("Moghalrajpuram");
+        w2.setAvailable(true);
+        w2.setCapableWorks(new ArrayList<>(List.of(
+                works.get("Window Cleaning")
+        )));
+        w2.setWorkMatchings(works);
+
+        return new ArrayList<>(List.of(w1, w2));
+    }
+
+    //Test work creation
     @Test
-    void testWorkConstructorAndAccessors() {
-        Work w = new Work(1, "Sweeping", 30, 200.0);
-        assertEquals(1, w.getId(), "Work id should be preserved");
-        assertEquals("Sweeping", w.getWorkName(), "Work name should match");
-        assertEquals(30, w.getTimeRequired(), "Work time should match");
-        assertEquals(200.0, w.getPrice(), 0.0001, "Work price should match");
+    void testWorkCreation() {
+        Work w = new Work(1, "Sweeping", 30, 200);
+        assertEquals(1, w.getId());
+        assertEquals("Sweeping", w.getWorkName());
+        assertEquals(30, w.getTimeRequired());
+        assertEquals(200, w.getPrice());
+    }
+    
+    @Test
+    void testWorkerCreationAndBooking() {
+        Worker w = new Worker("W1", "pw");
+        w.addBookingId(101);
+        assertTrue(w.getBookings().contains(101));
     }
 
     @Test
-    void testWorkerBasicConstructor() {
-        Worker worker = new Worker("w1", "pass123");
-        // Basic checks
-        assertEquals("w1", worker.getWorkerId());
-        assertEquals("pass123", worker.getWorkerPass());
-        // Initially no name/gender/area unless set by repository lookup
-        // We test the setter/getter roundtrip if available
-        worker.setAvailable(false);
-        assertFalse(worker.isAvailableNow(), "Worker availability toggled");
+    void testImmediateServiceRejectedWhenNoWorker() {
+        LinkedHashMap<String, Work> works = createWorkMatchings();
+        ArrayList<Worker> workers = new ArrayList<>();
+
+        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
+        ServiceRepository sr = new ServiceRepository("data/test_services.json");
+        AssignmentService as = new AssignmentService(wr, sr);
+
+        String[] fields = {
+                "2", "0", "Immediate", "Basic",
+                "2026-01-01", "11:00:00",
+                "Moghalrajpuram",
+                "C2", "M",
+                "Addr",
+                "[Sweeping]",
+                "NP", "", "", "", "", ""
+        };
+
+        ServiceRequest req = new ServiceRequest(fields, works);
+        as.processImmediateRequest(req, workers);
+
+        assertEquals(Status.REJECTED, req.getStatus());
+        assertNotNull(req.getReason());
     }
 
     @Test
@@ -58,6 +113,7 @@ public class TestBackend {
         assertEquals(900.0, price, 0.0001);
     }
 
+<<<<<<< HEAD
     @Test
     void testWorkerAddBookingAndGetBookings() {
         Worker w = new Worker("w2", "pw");
@@ -102,12 +158,14 @@ public class TestBackend {
         return new ArrayList<>(List.of(w1, w2));
     }
 
+=======
+>>>>>>> c792658 (neat testcase)
     /* 
        IMMEDIATE REQUEST IS ASSIGNED
      */
     @Test
     void testImmediateServiceAssignment() {
-        LinkedHashMap<String, Work> works = createWorkMap();
+        LinkedHashMap<String, Work> works = createWorkMatchings();
         ArrayList<Worker> workers = createWorkers(works);
 
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
@@ -116,7 +174,7 @@ public class TestBackend {
 
         String[] fields = {
                 "1", "0", "Immediate", "Basic",
-                "2025-01-01", "10:00:00",
+                "2026-01-01", "10:00:00",
                 "Moghalrajpuram",
                 "C1", "M",
                 "Some Addr",
@@ -133,14 +191,14 @@ public class TestBackend {
     }
 
     /* 
-       IMMEDIATE REQUEST REJECTED IF NO WORKER
+       IMMEDIATE REQUEST REJECTED IF NO WORKER CAN DO THE WORK
      */
     @Test
-    void testImmediateServiceRejectedWhenNoWorker() {
-        LinkedHashMap<String, Work> works = createWorkMap();
+    void testImmediateServiceRejected(){
+        LinkedHashMap<String, Work> works = createWorkMatchings();
 
         // No workers at all
-        ArrayList<Worker> workers = new ArrayList<>();
+        ArrayList<Worker> workers =createWorkers(works);
 
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
         ServiceRepository sr = new ServiceRepository("data/test_services.json");
@@ -148,11 +206,11 @@ public class TestBackend {
 
         String[] fields = {
                 "2", "0", "Immediate", "Basic",
-                "2025-01-01", "11:00:00",
+                "2026-01-01", "11:00:00",
                 "Moghalrajpuram",
                 "C2", "M",
                 "Addr",
-                "[Sweeping]",
+                "[Ironing]",
                 "NP", "", "", "", "", ""
         };
 
@@ -161,6 +219,7 @@ public class TestBackend {
         as.processImmediateRequest(req, workers);
 
         assertEquals(Status.REJECTED, req.getStatus());
+        assertNotNull(req.getReason());
     }
 
     /* 
@@ -168,7 +227,7 @@ public class TestBackend {
      */
     @Test
     void testScheduledServiceAssignment() {
-        LinkedHashMap<String, Work> works = createWorkMap();
+        LinkedHashMap<String, Work> works = createWorkMatchings();
         ArrayList<Worker> workers = createWorkers(works);
 
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
@@ -177,27 +236,79 @@ public class TestBackend {
 
         String[] fields = {
                 "3", "0", "Scheduling", "Premium",
-                "2025-01-01", "12:00:00",
+                "2026-01-01", "12:00:00",
                 "Moghalrajpuram",
                 "C3", "F",
                 "Addr",
                 "[Window Cleaning]",
                 "NP",
-                "2025-01-10", "09:00:00", "", "", ""
+                "2026-01-10", "09:00:00", "", "", ""
         };
 
         ServiceRequest req = new ServiceRequest(fields, works);
 
         // Fake admin input selecting worker W2
         Scanner fakeScanner = new Scanner("W2\n");
-
         as.processScheduledRequest(req, workers, fakeScanner);
 
         assertEquals(Status.ASSIGNED, req.getStatus());
         assertEquals(1, req.getAssignedWorkerIds().size());
+        assertEquals("W2", req.getAssignedWorkerIds().get(0));
+        assertEquals(480.0, req.getPrice(), 0.01);
     }
 
+<<<<<<< HEAD
     
+=======
+    /* 
+       MARK SERVICE AS COMPLETED
+     */
+    @Test
+    void testMarkServiceCompleted() {
+        LinkedHashMap<String, Work> works = createWorkMatchings();
+        ArrayList<Worker> workers = createWorkers(works);
+
+        Worker worker = workers.get(0);
+
+        String[] fields = {
+                "4", "1", "Immediate", "Basic",
+                "2026-01-01", "10:00:00",
+                "Moghalrajpuram",
+                "C4", "M",
+                "Addr",
+                "[Sweeping]",
+                "NP", "2026-01-01", "10:00:00", "10:30:00"
+        };
+
+        ServiceRequest service = new ServiceRequest(fields, works);
+        service.setPrice(60);
+        service.setAssignedWorkerIds(new ArrayList<>(List.of(worker.getWorkerId())));
+        worker.addBookingId(4);
+
+        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
+        ServiceRepository sr = new ServiceRepository("data/test_services.json");
+        worker.setServiceRepo(sr);
+        worker.setWorkerRepo(wr);
+        //worker.setWorkMatchings(works);
+
+        sr.saveAll(new ArrayList<>(List.of(service)));
+
+        //ByteArrayInputStream input =new ByteArrayInputStream("4\n".getBytes());
+        worker.setScanner(new Scanner("4\n"));
+        //System.setIn(input);
+
+        worker.markWorkAsCompleted();
+        worker.setAvailable(true);
+
+        ServiceRequest updated = sr.loadAll(works).get(0);
+
+
+        assertEquals(Status.COMPLETED, updated.getStatus());
+        assertNotNull(updated.getWorkEndTime());
+        assertTrue(worker.isAvailableNow());
+    }
+
+>>>>>>> c792658 (neat testcase)
     /* 
        PRICE CALCULATION
      */
@@ -251,30 +362,6 @@ public class TestBackend {
 
 
     @Test
-    void testMarkServiceAsCompleted() {
-        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
-        Work sweeping = new Work(1, "Sweeping", 30, 200);
-        workMap.put("Sweeping", sweeping);
-
-        String[] fields = {
-            "101", "1", "Immediate", "Basic",
-            "2025-12-10", "10:00:00",
-            "City", "C1", "M", "Addr",
-            "[Sweeping]", "NP",
-            "", "", "2025-12-10", "10:00:00", "11:00:00"
-        };
-
-        ServiceRequest req = new ServiceRequest(fields, workMap);
-        req.setStatus(Status.ASSIGNED);
-
-        req.setStatus(Status.COMPLETED);
-        req.setWorkEndtime("12:30:00");
-
-        assertEquals(Status.COMPLETED, req.getStatus());
-        assertEquals("12:30:00", req.getWorkEndTime());
-    }
-
-    @Test
     void testWorkerViewBookingsOnlyAssigned() {
         LinkedHashMap<String, Work> works = createWorkMap();
         Work sweep = new Work(1, "Sweeping", 30, 200);
@@ -283,19 +370,19 @@ public class TestBackend {
         // ASSIGNED service
         String[] f1 = {
             "1", "1", "Immediate", "Basic",
-            "2025-12-10", "10:00:00",
+            "2026-12-10", "10:00:00",
             "City", "C1", "M", "Addr",
             "[Sweeping]", "NP",
-            "", "", "2025-12-10", "10:00:00", "11:00:00"
+            "", "", "2026-12-10", "10:00:00", "11:00:00"
         };
 
         // COMPLETED service
         String[] f2 = {
             "2", "2", "Immediate", "Basic",
-            "2025-12-10", "10:00:00",
+            "2026-12-10", "10:00:00",
             "City", "C1", "M", "Addr",
             "[Sweeping]", "NP",
-            "", "", "2025-12-10", "10:00:00", "11:30:00"
+            "", "", "2026-12-10", "10:00:00", "11:30:00"
         };
 
         ServiceRequest s1 = new ServiceRequest(f1, works);
@@ -321,18 +408,18 @@ public class TestBackend {
 
         String[] f1 = {
             "1", "2", "Immediate", "Basic",
-            "2025-12-10", "10:00:00",
+            "2026-12-10", "10:00:00",
             "City", "C1", "M", "Addr",
             "[Sweeping]", "NP",
-            "", "", "2025-12-10", "10:00:00", "11:30:00"
+            "", "", "2026-12-10", "10:00:00", "11:30:00"
         };
 
         String[] f2 = {
             "2", "1", "Immediate", "Basic",
-            "2025-12-10", "10:00:00",
+            "2026-12-10", "10:00:00",
             "City", "C1", "M", "Addr",
             "[Sweeping]", "NP",
-            "", "", "2025-12-10", "10:00:00", "11:00:00"
+            "", "", "2026-12-10", "10:00:00", "11:00:00"
         };
 
         ServiceRequest s1 = new ServiceRequest(f1, workMap); // COMPLETED
@@ -369,7 +456,7 @@ public class TestBackend {
         //  Request (PENDING + IMMEDIATE) 
         String[] fields = {
             "201", "0", "Immediate", "Basic",   
-            "2025-12-10", "10:00:00",
+            "2026-12-10", "10:00:00",
             "City", "C1", "M", "Addr",
             "[Sweeping]", "NP",
             "", "", "", "", ""
@@ -408,7 +495,7 @@ public class TestBackend {
         fields[1] = "-1";                    // REJECTED
         fields[2] = "Immediate";
         fields[3] = "Basic";
-        fields[4] = "2025-12-03";
+        fields[4] = "2026-12-03";
         fields[5] = "18:00:00";
         fields[6] = "Moghalrajpuram";
         fields[7] = "customer1";
