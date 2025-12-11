@@ -113,53 +113,6 @@ public class TestBackend {
         assertEquals(900.0, price, 0.0001);
     }
 
-<<<<<<< HEAD
-    @Test
-    void testWorkerAddBookingAndGetBookings() {
-        Worker w = new Worker("w2", "pw");
-        w.addBookingId(100);
-        assertTrue(w.getBookings().contains(100), "Booking id should be stored");
-    }
-
-
-    /* 
-       Helper: Create Work Map (like works_config)
-  */
-     private LinkedHashMap<String, Work> createWorkMap() {
-        LinkedHashMap<String, Work> map = new LinkedHashMap<>();
-        map.put("Sweeping", new Work(1, "Sweeping", 30, 200));
-        map.put("Mopping", new Work(2, "Mopping", 40, 300));
-        map.put("Window Cleaning", new Work(3, "Window Cleaning", 80, 600));
-        return map;
-    }
-    /* 
-       Helper: Create Workers
-     */
-    private ArrayList<Worker> createWorkers(LinkedHashMap<String, Work> works) {
-        Worker w1 = new Worker("W1", "p1");
-        w1.setName("Arjun");
-        w1.setGender("M");
-        w1.setArea("Moghalrajpuram");
-        w1.setAvailable(true);
-        w1.setCapableWorks(new ArrayList<>(List.of(
-                works.get("Sweeping"),
-                works.get("Mopping")
-        )));
-
-        Worker w2 = new Worker("W2", "p2");
-        w2.setName("Sita");
-        w2.setGender("F");
-        w2.setArea("Moghalrajpuram");
-        w2.setAvailable(true);
-        w2.setCapableWorks(new ArrayList<>(List.of(
-                works.get("Window Cleaning")
-        )));
-
-        return new ArrayList<>(List.of(w1, w2));
-    }
-
-=======
->>>>>>> c792658 (neat testcase)
     /* 
        IMMEDIATE REQUEST IS ASSIGNED
      */
@@ -257,9 +210,6 @@ public class TestBackend {
         assertEquals(480.0, req.getPrice(), 0.01);
     }
 
-<<<<<<< HEAD
-    
-=======
     /* 
        MARK SERVICE AS COMPLETED
      */
@@ -308,7 +258,6 @@ public class TestBackend {
         assertTrue(worker.isAvailableNow());
     }
 
->>>>>>> c792658 (neat testcase)
     /* 
        PRICE CALCULATION
      */
@@ -363,9 +312,9 @@ public class TestBackend {
 
     @Test
     void testWorkerViewBookingsOnlyAssigned() {
-        LinkedHashMap<String, Work> works = createWorkMap();
+        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
         Work sweep = new Work(1, "Sweeping", 30, 200);
-        works.put("Sweeping", sweep);
+        workMap.put("Sweeping", sweep);
 
         // ASSIGNED service
         String[] f1 = {
@@ -385,8 +334,8 @@ public class TestBackend {
             "", "", "2026-12-10", "10:00:00", "11:30:00"
         };
 
-        ServiceRequest s1 = new ServiceRequest(f1, works);
-        ServiceRequest s2 = new ServiceRequest(f2, works);
+        ServiceRequest s1 = new ServiceRequest(f1, workMap);
+        ServiceRequest s2 = new ServiceRequest(f2, workMap);
 
         ArrayList<ServiceRequest> services = new ArrayList<>();
         services.add(s1);

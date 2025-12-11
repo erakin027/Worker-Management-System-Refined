@@ -224,14 +224,7 @@ class WorkerRepository {
      * @param worker Worker with updated information
      */
     public void update(Worker worker) {
-<<<<<<< HEAD
-        WorkRepository workRepo = new WorkRepository("data/works_config.json");
-        workRepo.loadAllWorks();
-        LinkedHashMap<String, Work> workMatchings =workRepo.getAllWorks();
-        ArrayList<Worker> workers = loadAll(workMatchings);
-=======
         ArrayList<Worker> workers = loadAll(new LinkedHashMap<>());
->>>>>>> c792658 (neat testcase)
         for (int i = 0; i < workers.size(); i++) {
             if (workers.get(i).getWorkerId().equals(worker.getWorkerId())) {
                 workers.set(i, worker);
@@ -531,7 +524,7 @@ class ServiceRepository {
      * @return ArrayList of service requests for the customer
      */
     public ArrayList<ServiceRequest> findByCustomer(String customerId, 
-                                                     LinkedHashMap<String, Work> workMatchings) {
+                                                     java.util.LinkedHashMap<String, Work> workMatchings) {
         ArrayList<ServiceRequest> allServices = loadAll(workMatchings);
         ArrayList<ServiceRequest> result = new ArrayList<>();
         for (ServiceRequest service : allServices) {
