@@ -30,7 +30,7 @@ public:
     optional<string> workStartTime;
     optional<string> workEndTime;
     optional<string> assignedWorkerIDs;
-    optional<string> reason;
+    optional<string> rejectionReason;
 
     string typeStr() const { return type == Type::Immediate ? "Immediate" : "Scheduling"; }
 };
@@ -55,7 +55,7 @@ inline void to_json(json& j, const Service& s) {
     if (s.workStartTime) j["workStartTime"] = *s.workStartTime;
     if (s.workEndTime) j["workEndTime"] = *s.workEndTime;
     if (s.assignedWorkerIDs) j["assignedWorkerIDs"] = *s.assignedWorkerIDs;
-    if (s.reason) j["reason"] = *s.reason;
+    if (s.rejectionReason) j["rejectionReason"] = *s.rejectionReason;
 }
 
 inline void from_json(const json& j, Service& s) {
@@ -75,7 +75,7 @@ inline void from_json(const json& j, Service& s) {
     if (j.contains("workStartTime")) s.workStartTime = j.at("workStartTime").get<string>();
     if (j.contains("workEndTime")) s.workEndTime = j.at("workEndTime").get<string>();
     if (j.contains("assignedWorkerIDs")) s.assignedWorkerIDs = j.at("assignedWorkerIDs").get<string>();
-    if (j.contains("reason")) s.reason = j.at("reason").get<string>();
+    if (j.contains("rejectionReason")) s.rejectionReason = j.at("rejectionReason").get<string>();
     if (j.contains("price")) s.price = j.at("price").get<double>();
 }
 

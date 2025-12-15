@@ -137,8 +137,9 @@ public:
         cout << "\n";
         if (s.workDate) cout << "Work Date: " << *s.workDate;
         if (s.workStartTime) cout << " Start: " << *s.workStartTime;
-        if (s.workDate || s.workStartTime) cout << "\n";
-        if (s.reason) cout << "Rejection Reason: " << *s.reason << "\n";
+        if (s.workEndTime) cout << " End: " << *s.workEndTime;
+        if (s.workDate || s.workStartTime || s.workEndTime) cout << "\n";
+        if (s.rejectionReason) cout << "Rejection Reason: " << *s.rejectionReason << "\n";
     }
     
     static void printPaymentInfo(const optional<Payment>& p) {
