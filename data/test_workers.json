@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "workerId": "W1",
+    "workerPass": "p1",
+    "name": "Arjun",
+    "gender": "M",
+    "area": "Moghalrajpuram",
+    "isAvailable": true,
+    "matchingCount": 0,
+    "capableWorks": [
+      "Mopping",
+      "Washing"
+    ],
+    "bookings": []
+  }
+]

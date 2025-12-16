@@ -3,9 +3,9 @@ package app;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.time.*;
 import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class TestBackend {
 
@@ -18,32 +18,72 @@ public class TestBackend {
         return workMatchings;
     }
 
-    //Helper to create workers
-    private ArrayList<Worker> createWorkers(LinkedHashMap<String, Work> works) {
-        Worker w1 = new Worker("W1", "p1");
-        w1.setName("Arjun");
-        w1.setGender("M");
-        w1.setArea("Moghalrajpuram");
-        w1.setAvailable(true);
-        w1.setCapableWorks(new ArrayList<>(List.of(
-                works.get("Sweeping"),
-                works.get("Mopping")
-        )));
-        w1.setWorkMatchings(works);
+    private void cleanFile(String path) {
+        try {
+            Files.deleteIfExists(Path.of(path));
+        } catch (Exception ignored) {}
+    }
 
-        Worker w2 = new Worker("W2", "p2");
-        w2.setName("Sita");
-        w2.setGender("F");
-        w2.setArea("Moghalrajpuram");
-        w2.setAvailable(true);
-        w2.setCapableWorks(new ArrayList<>(List.of(
-                works.get("Window Cleaning")
-        )));
-        w2.setWorkMatchings(works);
+   
+    private Worker registerWorker(
+            String workerId,
+            String workerPass,
+            String name,
+            String gender,
+            int areaCode,
+            List<String> workNames,
+            LinkedHashMap<String, Work> workMatchings,
+            WorkerRepository repo
+    ) {
+        Worker worker = new Worker(workerId, workerPass);
+        worker.setWorkerRepo(repo);
+        worker.setWorkMatchings(workMatchings);
+
+        // Map the requested work names to the menu indices used during registration.
+        List<String> orderedNames = new ArrayList<>(workMatchings.keySet());
+        List<Integer> selections = new ArrayList<>();
+        for (String target : workNames) {
+            int idx = orderedNames.indexOf(target);
+            if (idx == -1) {
+                throw new IllegalArgumentException("Work not found: " + target);
+            }
+            selections.add(idx + 1); // menu is 1-based
+        }
+
+        StringBuilder input = new StringBuilder();
+        input.append(name).append("\n");
+        input.append(gender).append("\n");
+        input.append(areaCode).append("\n");
+        input.append(selections.size()).append("\n");
+        for (int i = 0; i < selections.size(); i++) {
+            input.append(selections.get(i));
+            if (i < selections.size() - 1) input.append(" ");
+        }
+        input.append("\n");
+
+        Scanner scanner = new Scanner(input.toString());
+        worker.register(scanner, workMatchings);
+        return worker;
+    }
+
+    private ArrayList<Worker> createWorkers(LinkedHashMap<String, Work> works, WorkerRepository repo) {
+        // Use registration flow for two sample workers in Moghalrajpuram (area code 1)
+        Worker w1 = registerWorker(
+                "W1", "p1", "Arjun", "M", 1,
+                List.of("Sweeping", "Mopping"),
+                works, repo
+        );
+
+        Worker w2 = registerWorker(
+                "W2", "p2", "Sita", "F", 1,
+                List.of("Window Cleaning"),
+                works, repo
+        );
 
         return new ArrayList<>(List.of(w1, w2));
     }
 
+    
     //Test work creation
     @Test
     void testWorkCreation() {
@@ -119,10 +159,14 @@ public class TestBackend {
     @Test
     void testImmediateServiceAssignment() {
         LinkedHashMap<String, Work> works = createWorkMatchings();
-        ArrayList<Worker> workers = createWorkers(works);
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
 
-        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
-        ServiceRepository sr = new ServiceRepository("data/test_services.json");
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+        ArrayList<Worker> workers = createWorkers(works, wr);
         AssignmentService as = new AssignmentService(wr, sr);
 
         String[] fields = {
@@ -140,18 +184,17 @@ public class TestBackend {
         as.processImmediateRequest(req, workers);
 
         assertEquals(Status.ASSIGNED, req.getStatus());
-        assertFalse(req.getAssignedWorkerIds().isEmpty());
+        assertEquals(1, req.getAssignedWorkerIds().size());
+        assertEquals("W1", req.getAssignedWorkerIds().get(0));
     }
 
-    /* 
-       IMMEDIATE REQUEST REJECTED IF NO WORKER CAN DO THE WORK
-     */
+    //IMMEDIATE REQUEST REJECTED IF NO WORKER CAN DO THE WORK
     @Test
     void testImmediateServiceRejected(){
         LinkedHashMap<String, Work> works = createWorkMatchings();
 
         // No workers at all
-        ArrayList<Worker> workers =createWorkers(works);
+        ArrayList<Worker> workers = new ArrayList<>();
 
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
         ServiceRepository sr = new ServiceRepository("data/test_services.json");
@@ -175,16 +218,18 @@ public class TestBackend {
         assertNotNull(req.getReason());
     }
 
-    /* 
-       SCHEDULED REQUEST MANUAL ASSIGN
-     */
+    //SCHEDULED REQUEST MANUAL ASSIGN
     @Test
     void testScheduledServiceAssignment() {
         LinkedHashMap<String, Work> works = createWorkMatchings();
-        ArrayList<Worker> workers = createWorkers(works);
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
 
-        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
-        ServiceRepository sr = new ServiceRepository("data/test_services.json");
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+        ArrayList<Worker> workers = createWorkers(works, wr);
         AssignmentService as = new AssignmentService(wr, sr);
 
         String[] fields = {
@@ -210,15 +255,20 @@ public class TestBackend {
         assertEquals(480.0, req.getPrice(), 0.01);
     }
 
-    /* 
-       MARK SERVICE AS COMPLETED
-     */
+    //MARK SERVICE AS COMPLETED
     @Test
     void testMarkServiceCompleted() {
         LinkedHashMap<String, Work> works = createWorkMatchings();
-        ArrayList<Worker> workers = createWorkers(works);
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
 
-        Worker worker = workers.get(0);
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+        ArrayList<Worker> workers = createWorkers(works, wr);
+
+        Worker worker = workers.get(0); // registered worker
 
         String[] fields = {
                 "4", "1", "Immediate", "Basic",
@@ -235,8 +285,6 @@ public class TestBackend {
         service.setAssignedWorkerIds(new ArrayList<>(List.of(worker.getWorkerId())));
         worker.addBookingId(4);
 
-        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
-        ServiceRepository sr = new ServiceRepository("data/test_services.json");
         worker.setServiceRepo(sr);
         worker.setWorkerRepo(wr);
         //worker.setWorkMatchings(works);
@@ -258,9 +306,7 @@ public class TestBackend {
         assertTrue(worker.isAvailableNow());
     }
 
-    /* 
-       PRICE CALCULATION
-     */
+    //PRICE CALCULATION
     @Test
     void testPriceCalculation() {
         WorkerRepository wr = new WorkerRepository("data/test_workers.json");
@@ -276,47 +322,75 @@ public class TestBackend {
         assertEquals(450.0, price, 0.01); // 10% discount
     }
 
-    /* 
-       WORKER BOOKING STORAGE
-     */
+    //WORKER BOOKING STORAGE
     @Test
     void testWorkerBookingStorage() {
-        Worker w = new Worker("W9", "pw");
-        w.addBookingId(101);
+        LinkedHashMap<String, Work> works = createWorkMatchings();
+        String workersPath = "data/test_workers.json";
+        cleanFile(workersPath);
 
-        assertTrue(w.getBookings().contains(101));
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        createWorkers(works, wr); // register sample workers into repo
+
+        // Load existing worker and update bookings through repository-backed object
+        Worker existing = wr.loadAll(works).get(0);
+        existing.addBookingId(101);
+        wr.update(existing);
+
+        Worker reloaded = wr.loadAll(works).get(0);
+        assertTrue(reloaded.getBookings().contains(101));
     }
 
     @Test
     void testWorkerEditDetailsUpdatesCapableWorks() {
         LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
-        Work sweeping = new Work(1, "Sweeping", 30, 200);
-        Work mopping  = new Work(2, "Mopping", 40, 300);
-        Work washing  = new Work(3, "Washing", 25, 150);
+        workMap.put("Sweeping", new Work(1, "Sweeping", 30, 200));
+        workMap.put("Mopping", new Work(2, "Mopping", 40, 300));
+        workMap.put("Washing", new Work(3, "Washing", 25, 150));
 
-        workMap.put("Sweeping", sweeping);
-        workMap.put("Mopping", mopping);
-        workMap.put("Washing", washing);
+        String workersPath = "data/test_workers.json";
+        cleanFile(workersPath);
+        WorkerRepository wr = new WorkerRepository(workersPath);
 
-        Worker worker = new Worker("W1", "pass");
-        worker.setCapableWorks(new ArrayList<>(List.of(sweeping)));
+        // Register one worker with initial capability Sweeping
+        Worker worker = registerWorker(
+                "W1", "p1", "Arjun", "M", 1,
+                List.of("Sweeping"),
+                workMap, wr
+        );
 
-        // Simulate edit → replace old skill with new ones
-        worker.setCapableWorks(new ArrayList<>(List.of(mopping, washing)));
+        // Re-load to simulate "existing" worker
+        worker = wr.loadAll(workMap).get(0);
+        worker.setWorkerRepo(wr);
+        worker.setWorkMatchings(workMap);
+
+        // Edit via scanner: choose option 2, declare 2 works, select Mopping and Washing (menu indexes 2 and 3)
+        Scanner scanner = new Scanner("2\n2\n2 3\n");
+        worker.editDetails(scanner, workMap);
 
         assertEquals(2, worker.getCapableWorks().size());
-        assertTrue(worker.getCapableWorks().contains(mopping));
-        assertTrue(worker.getCapableWorks().contains(washing));
+        assertTrue(worker.getCapableWorks().stream().anyMatch(w -> w.getWorkName().equals("Mopping")));
+        assertTrue(worker.getCapableWorks().stream().anyMatch(w -> w.getWorkName().equals("Washing")));
     }
 
 
     @Test
     void testWorkerViewBookingsOnlyAssigned() {
-        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
-        Work sweep = new Work(1, "Sweeping", 30, 200);
-        workMap.put("Sweeping", sweep);
+        LinkedHashMap<String, Work> workMap = createWorkMatchings();
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
 
-        // ASSIGNED service
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+        createWorkers(workMap, wr);
+
+        Worker worker = wr.loadAll(workMap).get(0);
+        worker.setWorkerRepo(wr);
+        worker.setServiceRepo(sr);
+        worker.setWorkMatchings(workMap);
+
         String[] f1 = {
             "1", "1", "Immediate", "Basic",
             "2026-12-10", "10:00:00",
@@ -325,7 +399,6 @@ public class TestBackend {
             "", "", "2026-12-10", "10:00:00", "11:00:00"
         };
 
-        // COMPLETED service
         String[] f2 = {
             "2", "2", "Immediate", "Basic",
             "2026-12-10", "10:00:00",
@@ -334,16 +407,19 @@ public class TestBackend {
             "", "", "2026-12-10", "10:00:00", "11:30:00"
         };
 
-        ServiceRequest s1 = new ServiceRequest(f1, workMap);
-        ServiceRequest s2 = new ServiceRequest(f2, workMap);
+        ServiceRequest s1 = new ServiceRequest(f1, workMap); // ASSIGNED
+        ServiceRequest s2 = new ServiceRequest(f2, workMap); // COMPLETED
+        sr.saveAll(new ArrayList<>(List.of(s1, s2)));
 
-        ArrayList<ServiceRequest> services = new ArrayList<>();
-        services.add(s1);
-        services.add(s2);
+        worker.addBookingId(s1.getServiceId());
+        worker.addBookingId(s2.getServiceId());
+        wr.update(worker);
 
-        long active = services.stream()
-            .filter(s -> s.getStatus() == Status.ASSIGNED)
-            .count();
+        ArrayList<ServiceRequest> loaded = sr.loadAll(workMap);
+        long active = loaded.stream()
+                .filter(s -> worker.getBookings().contains(s.getServiceId()))
+                .filter(s -> s.getStatus() == Status.ASSIGNED)
+                .count();
 
         assertEquals(1, active);
     }
@@ -351,9 +427,20 @@ public class TestBackend {
     @Test
     void testWorkerHistoryOnlyCompleted() {
 
-        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
-        Work sweep = new Work(1, "Sweeping", 30, 200);
-        workMap.put("Sweeping", sweep);
+        LinkedHashMap<String, Work> workMap = createWorkMatchings();
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
+
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+        createWorkers(workMap, wr);
+
+        Worker worker = wr.loadAll(workMap).get(0);
+        worker.setWorkerRepo(wr);
+        worker.setServiceRepo(sr);
+        worker.setWorkMatchings(workMap);
 
         String[] f1 = {
             "1", "2", "Immediate", "Basic",
@@ -373,14 +460,17 @@ public class TestBackend {
 
         ServiceRequest s1 = new ServiceRequest(f1, workMap); // COMPLETED
         ServiceRequest s2 = new ServiceRequest(f2, workMap); // ASSIGNED
+        sr.saveAll(new ArrayList<>(List.of(s1, s2)));
 
-        ArrayList<ServiceRequest> services = new ArrayList<>();
-        services.add(s1);
-        services.add(s2);
+        worker.addBookingId(s1.getServiceId());
+        worker.addBookingId(s2.getServiceId());
+        wr.update(worker);
 
-        long completed = services.stream()
-            .filter(s -> s.getStatus() == Status.COMPLETED)
-            .count();
+        ArrayList<ServiceRequest> loaded = sr.loadAll(workMap);
+        long completed = loaded.stream()
+                .filter(s -> worker.getBookings().contains(s.getServiceId()))
+                .filter(s -> s.getStatus() == Status.COMPLETED)
+                .count();
 
         assertEquals(1, completed);
     }
@@ -389,49 +479,48 @@ public class TestBackend {
     @Test
     void testFullAssignmentThenCompletionFlow() {
 
-        // Setup Work 
-        Work sweep = new Work(1, "Sweeping", 30, 200);
-        LinkedHashMap<String, Work> workMap = new LinkedHashMap<>();
-        workMap.put("Sweeping", sweep);
+        LinkedHashMap<String, Work> workMap = createWorkMatchings();
+        String workersPath = "data/test_workers.json";
+        String servicesPath = "data/test_services.json";
+        cleanFile(workersPath);
+        cleanFile(servicesPath);
 
-        // Worker 
-        Worker worker = new Worker("W1", "pass");
-        worker.setName("Test Worker");
-        worker.setGender("M");
-        worker.setArea("City");
-        worker.setAvailable(true);
-        worker.setCapableWorks(new ArrayList<>(List.of(sweep)));
+        WorkerRepository wr = new WorkerRepository(workersPath);
+        ServiceRepository sr = new ServiceRepository(servicesPath);
+
+        // Register worker via the real flow so skills/locality come from stored data
+        registerWorker(
+                "W1", "pass", "Test Worker", "M", 1, // area code 1 -> Moghalrajpuram
+                List.of("Sweeping"),
+                workMap, wr
+        );
+
+        // Reload to get a persisted worker instance
+        Worker worker = wr.loadAll(workMap).get(0);
+        worker.setWorkerRepo(wr);
+        worker.setServiceRepo(sr);
+        worker.setWorkMatchings(workMap);
 
         //  Request (PENDING + IMMEDIATE) 
         String[] fields = {
             "201", "0", "Immediate", "Basic",   
             "2026-12-10", "10:00:00",
-            "City", "C1", "M", "Addr",
+            "Moghalrajpuram", "C1", "M", "Addr",
             "[Sweeping]", "NP",
             "", "", "", "", ""
         };
 
         ServiceRequest request = new ServiceRequest(fields, workMap);
 
-        //Repositories
-        WorkerRepository wr = new WorkerRepository("data/test_workers.json");
-        ServiceRepository sr = new ServiceRepository("data/test_services.json");
-
         AssignmentService as = new AssignmentService(wr, sr);
 
         // ASSIGN 
         as.processImmediateRequest(request, new ArrayList<>(List.of(worker)));
 
-        // MUST BE ASSIGNED
+        // MUST BE ASSIGNED by service logic
         assertEquals(Status.ASSIGNED, request.getStatus());
-
-        //  COMPLETE 
-        request.setStatus(Status.COMPLETED);
-        request.setWorkEndtime("12:00:00");
-
-        //MUST BE COMPLETED
-        assertEquals(Status.COMPLETED, request.getStatus());
-        assertEquals("12:00:00", request.getWorkEndTime());
+        assertEquals(List.of("W1"), request.getAssignedWorkerIds());
+        assertTrue(request.getWorkEndTime() != null && !request.getWorkEndTime().isEmpty());
     }
 
 
